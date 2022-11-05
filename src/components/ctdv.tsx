@@ -41,7 +41,7 @@ export default function Ctdv() {
     const footer =
       option == "dog" || option == "cat"
         ? "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ."
-        : "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé sớm tìm được chủ ạ. Mình xin cảm ơn."
+        : "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn."
 
     finalRef.current.value = `${title}
     
