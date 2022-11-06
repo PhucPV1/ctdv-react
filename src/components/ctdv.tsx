@@ -13,33 +13,26 @@ import PetsSharpIcon from "@mui/icons-material/PetsSharp"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
 
 export default function Ctdv() {
+  const optionTitle = new Map()
+  optionTitle.set("dog", "TÌM CHÓ LẠC")
+  optionTitle.set("cat", "TÌM MÈO LẠC")
+  optionTitle.set("dogFindOwner", "CHÓ LẠC TÌM CHỦ")
+  optionTitle.set("catFindOwner", "MÈO LẠC TÌM CHỦ")
+
   const [option, setOption] = React.useState("dog")
   const [title, setTitle] = React.useState("TÌM CHÓ LẠC")
+  const [isContentChanged, setIsContentChanged] = React.useState(false)
   const contentRef: any = React.useRef()
   const finalRef: any = React.useRef()
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setOption(event.target.value as string)
-    switch (event.target.value) {
-      case "dog":
-        setTitle("TÌM CHÓ LẠC")
-        break
-      case "cat":
-        setTitle("TÌM MÈO LẠC")
-        break
-      case "dogFindOwner":
-        setTitle("CHÓ LẠC TÌM CHỦ")
-        break
-      case "catFindOwner":
-        setTitle("MÈO LẠC TÌM CHỦ")
-        break
-    }
-    handleContent()
+  const handleChangeOption = (event: SelectChangeEvent) => {
+    setOption(event.target.value)
+    setTitle(optionTitle.get(event.target.value))
   }
 
-  const handleContent = () => {
+  React.useEffect(() => {
     const footer =
-      option === "dog" || option === "cat"
+      title === "TÌM CHÓ LẠC" || title === "TÌM MÈO LẠC"
         ? "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ."
         : "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn."
 
@@ -48,6 +41,10 @@ export default function Ctdv() {
 ${contentRef.current.value.replaceAll(" :", ":")}
     
 ${footer}`
+  }, [title, isContentChanged])
+
+  const handleContent = () => {
+    setIsContentChanged(!isContentChanged)
   }
 
   const handleCopy = () => {
@@ -69,7 +66,7 @@ ${footer}`
             id="demo-simple-select"
             value={option}
             // label="Thể loại"
-            onChange={handleChange}
+            onChange={handleChangeOption}
           >
             <MenuItem value={"dog"}>Tìm Chó Lạc</MenuItem>
             <MenuItem value={"cat"}>Tìm Mèo Lạc</MenuItem>
