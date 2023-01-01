@@ -70,6 +70,12 @@ textarea:focus {
   color: white;
   position: relative;
 }
+#content_title_type{
+  min-width: 48% !important;
+}
+#demo-simple-select{
+  border: 1px solid #f7cac9;
+}
 
 /* Tablet */
 @media (min-width: 740px) and (max-width: 1023px) {
@@ -85,5 +91,8 @@ textarea:focus {
   h1 {
     width: 80%;
     margin: auto;
+  }
+  #content_title_type{
+    min-width: 42% !important;
   }
 }

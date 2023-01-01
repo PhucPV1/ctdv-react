@@ -11,6 +11,8 @@ import "@fontsource/roboto/500.css"
 import "@fontsource/roboto/700.css"
 import PetsSharpIcon from "@mui/icons-material/PetsSharp"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
+import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
 
 export default function Ctdv() {
   const optionTitle = new Map()
@@ -24,13 +26,57 @@ export default function Ctdv() {
   const [isContentChanged, setIsContentChanged] = React.useState(false)
   const contentRef: any = React.useRef()
   const finalRef: any = React.useRef()
-
+  const [name, setName] = React.useState('');
+  const handleChangeName = (event: SelectChangeEvent) => {
+    setName(event.target.value as string);
+  };
+  const [breed, setBreed] = React.useState('');
+  const handleChangeBreed = (event: SelectChangeEvent) => {
+    setBreed(event.target.value as string);
+  };
+  const [gender, setGender] = React.useState('');
+  const handleChangeGender = (event: SelectChangeEvent) => {
+    setGender(event.target.value as string);
+  };
+  const [location, setLocation] = React.useState('');
+  const handleChangeLocation = (event: SelectChangeEvent) => {
+    setLocation(event.target.value as string);
+  };
+  const [time, setTime] = React.useState('');
+  const handleChangeTime = (event: SelectChangeEvent) => {
+    setTime(event.target.value as string);
+  };
+  const [info, setInfo] = React.useState('');
+  const handleChangeInfo = (event: SelectChangeEvent) => {
+    setInfo(event.target.value as string);
+  };
+  const [phone, setPhone] = React.useState('');
+  const handleChangePhone = (event: SelectChangeEvent) => {
+    setPhone(event.target.value as string);
+  };
+  const [assignedContent, setAssignedContent] = React.useState([1, 2, 3])
+  const [isAssigned, setIsAssigned] = React.useState(false)
+  const handleAssign = () => {
+    setIsAssigned(true)
+  }
   const handleChangeOption = (event: SelectChangeEvent) => {
     setOption(event.target.value)
     setTitle(optionTitle.get(event.target.value))
   }
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   React.useEffect(() => {
+    if (isAssigned) {
+      contentRef.current.value = `Tên: ${name}
+Giống: ${breed} 
+Giới tính: ${gender}
+Khu vực lạc: ${location} 
+Thời gian lạc: ${time} 
+Đặc điểm nhận dạng: ${info}
+Sdt liên hệ: ${phone}`
+    }
     const footer =
       title === "TÌM CHÓ LẠC" || title === "TÌM MÈO LẠC"
         ? "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ."
@@ -41,9 +87,10 @@ export default function Ctdv() {
 ${contentRef.current.value.replaceAll(" :", ":")}
     
 ${footer}`
-  }, [title, isContentChanged])
+  }, [title, isContentChanged,isAssigned, name, gender, breed, location, time, phone])
 
   const handleContent = () => {
+    setAssignedContent(contentRef.current.value.split(/\n/))
     setIsContentChanged(!isContentChanged)
   }
 
@@ -53,6 +100,17 @@ ${footer}`
       .then(() => alert("copy success"))
       .catch(() => alert("copy fail"))
   }
+  const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    bgcolor: 'background.paper',
+    border: '2px solid rgba(207, 76, 247, 0.863);',
+    boxShadow: 24,
+    p: 4,
+  };
   return (
     <>
       <PetsSharpIcon className="title-icon" />
@@ -81,17 +139,117 @@ ${footer}`
           minRows={10}
           onChange={handleContent}
           ref={contentRef}
-          //   placeholder="Minimum 3 rows"
-          //   style={{ width: 200 }}
+        //   placeholder="Minimum 3 rows"
+        //   style={{ width: 200 }}
         />
         <br></br>
+        <div>
+          <Button onClick={handleOpen}>Assign</Button>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+                <InputLabel id="demo-simple-select-label">Tên</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={name}
+                  label="Age"
+                  onChange={handleChangeName}
+                >
+                  {/*@ts-ignore */}
+                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+                <InputLabel id="demo-simple-select-label">Giống</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={breed}
+                  label="Age"
+                  onChange={handleChangeBreed}
+                >
+                  {/*@ts-ignore */}
+                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                </Select></FormControl>
+              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+                <InputLabel id="demo-simple-select-label">Giới tính</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={gender}
+                  label="Age"
+                  onChange={handleChangeGender}
+                >
+                  {/*@ts-ignore */}
+                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                </Select></FormControl>
+              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+                <InputLabel id="demo-simple-select-label">Khu vực lạc</InputLabel><Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={location}
+                  label="Age"
+                  onChange={handleChangeLocation}
+                >
+                  {/*@ts-ignore */}
+                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                </Select></FormControl>
+              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+                <InputLabel id="demo-simple-select-label">Thời gian lạc</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={time}
+                  label="Age"
+                  onChange={handleChangeTime}
+                >
+                  {/*@ts-ignore */}
+                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+                <InputLabel id="demo-simple-select-label">Đặc điểm</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={info}
+                  label="Age"
+                  onChange={handleChangeInfo}
+                >
+                  {/*@ts-ignore */}
+                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                </Select></FormControl>
+              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+                <InputLabel id="demo-simple-select-label">Sdt</InputLabel><Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={phone}
+                  label="Age"
+                  onChange={handleChangePhone}
+                >
+
+                  {/*@ts-ignore */}
+                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                </Select></FormControl>
+              <br/>
+              <Button variant="contained" sx={{ display:"block",margin: "0 auto"}} onClick={handleAssign}>Assign</Button>
+            </Box>
+          </Modal>
+        </div>
+
         <p>Bài Viết</p>
         <TextareaAutosize
           aria-label="minimum height"
           minRows={12}
           ref={finalRef}
-          //   placeholder="Minimum 3 rows"
-          //   style={{ width: 200 }}
+        //   placeholder="Minimum 3 rows"
+        //   style={{ width: 200 }}
         />
       </Box>
       <button className="button" id="copy-button" data-clipboard-target="#final" onClick={handleCopy}>
