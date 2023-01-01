@@ -11,8 +11,8 @@ import "@fontsource/roboto/500.css"
 import "@fontsource/roboto/700.css"
 import PetsSharpIcon from "@mui/icons-material/PetsSharp"
 import TextareaAutosize from "@mui/material/TextareaAutosize"
-import Modal from '@mui/material/Modal';
-import Button from '@mui/material/Button';
+import Modal from "@mui/material/Modal"
+import Button from "@mui/material/Button"
 
 export default function Ctdv() {
   const optionTitle = new Map()
@@ -26,34 +26,34 @@ export default function Ctdv() {
   const [isContentChanged, setIsContentChanged] = React.useState(false)
   const contentRef: any = React.useRef()
   const finalRef: any = React.useRef()
-  const [name, setName] = React.useState('');
+  const [name, setName] = React.useState("")
   const handleChangeName = (event: SelectChangeEvent) => {
-    setName(event.target.value as string);
-  };
-  const [breed, setBreed] = React.useState('');
+    setName(event.target.value as string)
+  }
+  const [breed, setBreed] = React.useState("")
   const handleChangeBreed = (event: SelectChangeEvent) => {
-    setBreed(event.target.value as string);
-  };
-  const [gender, setGender] = React.useState('');
+    setBreed(event.target.value as string)
+  }
+  const [gender, setGender] = React.useState("")
   const handleChangeGender = (event: SelectChangeEvent) => {
-    setGender(event.target.value as string);
-  };
-  const [location, setLocation] = React.useState('');
+    setGender(event.target.value as string)
+  }
+  const [location, setLocation] = React.useState("")
   const handleChangeLocation = (event: SelectChangeEvent) => {
-    setLocation(event.target.value as string);
-  };
-  const [time, setTime] = React.useState('');
+    setLocation(event.target.value as string)
+  }
+  const [time, setTime] = React.useState("")
   const handleChangeTime = (event: SelectChangeEvent) => {
-    setTime(event.target.value as string);
-  };
-  const [info, setInfo] = React.useState('');
+    setTime(event.target.value as string)
+  }
+  const [info, setInfo] = React.useState("")
   const handleChangeInfo = (event: SelectChangeEvent) => {
-    setInfo(event.target.value as string);
-  };
-  const [phone, setPhone] = React.useState('');
+    setInfo(event.target.value as string)
+  }
+  const [phone, setPhone] = React.useState("")
   const handleChangePhone = (event: SelectChangeEvent) => {
-    setPhone(event.target.value as string);
-  };
+    setPhone(event.target.value as string)
+  }
   const [assignedContent, setAssignedContent] = React.useState([1, 2, 3])
   const [isAssigned, setIsAssigned] = React.useState(false)
   const handleAssign = () => {
@@ -63,9 +63,9 @@ export default function Ctdv() {
     setOption(event.target.value)
     setTitle(optionTitle.get(event.target.value))
   }
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [open, setOpen] = React.useState(false)
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
 
   React.useEffect(() => {
     if (isAssigned) {
@@ -87,30 +87,33 @@ Sdt liên hệ: ${phone}`
 ${contentRef.current.value.replaceAll(" :", ":")}
     
 ${footer}`
-  }, [title, isContentChanged,isAssigned, name, gender, breed, location, time, phone])
+  }, [title, isContentChanged, isAssigned, name, gender, breed, location, time, phone])
 
   const handleContent = () => {
     setAssignedContent(contentRef.current.value.split(/\n/))
     setIsContentChanged(!isContentChanged)
   }
-
   const handleCopy = () => {
     navigator.clipboard
       .writeText(finalRef.current.value)
       .then(() => alert("copy success"))
       .catch(() => alert("copy fail"))
   }
+  const handleReload = () => {
+    window.location.reload()
+  }
   const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '80%',
-    bgcolor: 'background.paper',
-    border: '2px solid rgba(207, 76, 247, 0.863);',
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "80%",
+    bgcolor: "background.paper",
+    border: "2px solid rgba(207, 76, 247, 0.863);",
     boxShadow: 24,
     p: 4,
-  };
+    bg: "-moz-linear-gradient(-45deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%)",
+  }
   return (
     <>
       <PetsSharpIcon className="title-icon" />
@@ -139,8 +142,8 @@ ${footer}`
           minRows={10}
           onChange={handleContent}
           ref={contentRef}
-        //   placeholder="Minimum 3 rows"
-        //   style={{ width: 200 }}
+          //   placeholder="Minimum 3 rows"
+          //   style={{ width: 200 }}
         />
         <br></br>
         <div>
@@ -161,8 +164,11 @@ ${footer}`
                   label="Age"
                   onChange={handleChangeName}
                 >
-                  {/*@ts-ignore */}
-                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                  {assignedContent.map((a, index) => (
+                    <MenuItem key={index} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
@@ -174,9 +180,13 @@ ${footer}`
                   label="Age"
                   onChange={handleChangeBreed}
                 >
-                  {/*@ts-ignore */}
-                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
-                </Select></FormControl>
+                  {assignedContent.map((a, index) => (
+                    <MenuItem key={index} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
                 <InputLabel id="demo-simple-select-label">Giới tính</InputLabel>
                 <Select
@@ -186,20 +196,29 @@ ${footer}`
                   label="Age"
                   onChange={handleChangeGender}
                 >
-                  {/*@ts-ignore */}
-                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
-                </Select></FormControl>
+                  {assignedContent.map((a, index) => (
+                    <MenuItem key={index} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
-                <InputLabel id="demo-simple-select-label">Khu vực lạc</InputLabel><Select
+                <InputLabel id="demo-simple-select-label">Khu vực lạc</InputLabel>
+                <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={location}
                   label="Age"
                   onChange={handleChangeLocation}
                 >
-                  {/*@ts-ignore */}
-                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
-                </Select></FormControl>
+                  {assignedContent.map((a, index) => (
+                    <MenuItem key={index} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
                 <InputLabel id="demo-simple-select-label">Thời gian lạc</InputLabel>
                 <Select
@@ -209,8 +228,11 @@ ${footer}`
                   label="Age"
                   onChange={handleChangeTime}
                 >
-                  {/*@ts-ignore */}
-                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
+                  {assignedContent.map((a, index) => (
+                    <MenuItem key={index} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
@@ -222,23 +244,38 @@ ${footer}`
                   label="Age"
                   onChange={handleChangeInfo}
                 >
-                  {/*@ts-ignore */}
-                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
-                </Select></FormControl>
+                  {assignedContent.map((a, index) => (
+                    <MenuItem key={index} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
-                <InputLabel id="demo-simple-select-label">Sdt</InputLabel><Select
+                <InputLabel id="demo-simple-select-label">Sdt</InputLabel>
+                <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={phone}
                   label="Age"
                   onChange={handleChangePhone}
                 >
-
-                  {/*@ts-ignore */}
-                  {assignedContent.map(a => <MenuItem value={a}>{a}</MenuItem>)}
-                </Select></FormControl>
-              <br/>
-              <Button variant="contained" sx={{ display:"block",margin: "0 auto"}} onClick={handleAssign}>Assign</Button>
+                  {assignedContent.map((a, index) => (
+                    <MenuItem key={index} value={a}>
+                      {a}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <br />
+              <div id="Assign-Reload">
+                <Button variant="contained" sx={{ margin: "0 auto" }} onClick={handleAssign}>
+                  Assign
+                </Button>
+                <Button variant="contained" color="error" sx={{ margin: "0 auto" }} onClick={handleReload}>
+                  Reload
+                </Button>
+              </div>
             </Box>
           </Modal>
         </div>
@@ -248,8 +285,8 @@ ${footer}`
           aria-label="minimum height"
           minRows={12}
           ref={finalRef}
-        //   placeholder="Minimum 3 rows"
-        //   style={{ width: 200 }}
+          //   placeholder="Minimum 3 rows"
+          //   style={{ width: 200 }}
         />
       </Box>
       <button className="button" id="copy-button" data-clipboard-target="#final" onClick={handleCopy}>

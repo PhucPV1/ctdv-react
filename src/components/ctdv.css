@@ -70,11 +70,16 @@ textarea:focus {
   color: white;
   position: relative;
 }
-#content_title_type{
+#content_title_type {
   min-width: 48% !important;
 }
-#demo-simple-select{
+#demo-simple-select {
   border: 1px solid #f7cac9;
+}
+#Assign-Reload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Tablet */
@@ -92,7 +97,7 @@ textarea:focus {
     width: 80%;
     margin: auto;
   }
-  #content_title_type{
+  #content_title_type {
     min-width: 42% !important;
   }
 }
