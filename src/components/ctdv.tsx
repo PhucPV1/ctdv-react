@@ -58,6 +58,7 @@ export default function Ctdv() {
   const [isAssigned, setIsAssigned] = React.useState(false)
   const handleAssign = () => {
     setIsAssigned(true)
+    setOpen(false)
   }
   const handleChangeOption = (event: SelectChangeEvent) => {
     setOption(event.target.value)
@@ -87,7 +88,7 @@ Sdt liên hệ: ${phone}`
 ${contentRef.current.value.replaceAll(" :", ":")}
     
 ${footer}`
-  }, [title, isContentChanged, isAssigned, name, gender, breed, location, time, phone])
+  }, [title, isContentChanged, isAssigned, name, gender, breed, location, info,time, phone])
 
   const handleContent = () => {
     setAssignedContent(contentRef.current.value.split(/\n/))
@@ -142,8 +143,8 @@ ${footer}`
           minRows={10}
           onChange={handleContent}
           ref={contentRef}
-          //   placeholder="Minimum 3 rows"
-          //   style={{ width: 200 }}
+        //   placeholder="Minimum 3 rows"
+        //   style={{ width: 200 }}
         />
         <br></br>
         <div>
@@ -161,12 +162,12 @@ ${footer}`
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={name}
-                  label="Age"
+                  label="name"
                   onChange={handleChangeName}
                 >
-                  {assignedContent.map((a, index) => (
-                    <MenuItem key={index} value={a}>
-                      {a}
+                  {assignedContent.map((contentItem, index) => (
+                    <MenuItem key={index} value={contentItem}>
+                      {contentItem}
                     </MenuItem>
                   ))}
                 </Select>
@@ -177,12 +178,12 @@ ${footer}`
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={breed}
-                  label="Age"
+                  label="breed"
                   onChange={handleChangeBreed}
                 >
-                  {assignedContent.map((a, index) => (
-                    <MenuItem key={index} value={a}>
-                      {a}
+                  {assignedContent.map((contentItem, index) => (
+                    <MenuItem key={index} value={contentItem}>
+                      {contentItem}
                     </MenuItem>
                   ))}
                 </Select>
@@ -193,12 +194,12 @@ ${footer}`
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={gender}
-                  label="Age"
+                  label="gender"
                   onChange={handleChangeGender}
                 >
-                  {assignedContent.map((a, index) => (
-                    <MenuItem key={index} value={a}>
-                      {a}
+                  {assignedContent.map((contentItem, index) => (
+                    <MenuItem key={index} value={contentItem}>
+                      {contentItem}
                     </MenuItem>
                   ))}
                 </Select>
@@ -209,12 +210,12 @@ ${footer}`
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={location}
-                  label="Age"
+                  label="location"
                   onChange={handleChangeLocation}
                 >
-                  {assignedContent.map((a, index) => (
-                    <MenuItem key={index} value={a}>
-                      {a}
+                  {assignedContent.map((contentItem, index) => (
+                    <MenuItem key={index} value={contentItem}>
+                      {contentItem}
                     </MenuItem>
                   ))}
                 </Select>
@@ -225,12 +226,12 @@ ${footer}`
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={time}
-                  label="Age"
+                  label="time"
                   onChange={handleChangeTime}
                 >
-                  {assignedContent.map((a, index) => (
-                    <MenuItem key={index} value={a}>
-                      {a}
+                  {assignedContent.map((contentItem, index) => (
+                    <MenuItem key={index} value={contentItem}>
+                      {contentItem}
                     </MenuItem>
                   ))}
                 </Select>
@@ -241,12 +242,12 @@ ${footer}`
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={info}
-                  label="Age"
+                  label="info"
                   onChange={handleChangeInfo}
                 >
-                  {assignedContent.map((a, index) => (
-                    <MenuItem key={index} value={a}>
-                      {a}
+                  {assignedContent.map((contentItem, index) => (
+                    <MenuItem key={index} value={contentItem}>
+                      {contentItem}
                     </MenuItem>
                   ))}
                 </Select>
@@ -257,12 +258,12 @@ ${footer}`
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={phone}
-                  label="Age"
+                  label="phone"
                   onChange={handleChangePhone}
                 >
-                  {assignedContent.map((a, index) => (
-                    <MenuItem key={index} value={a}>
-                      {a}
+                  {assignedContent.map((contentItem, index) => (
+                    <MenuItem key={index} value={contentItem}>
+                      {contentItem}
                     </MenuItem>
                   ))}
                 </Select>
@@ -285,8 +286,8 @@ ${footer}`
           aria-label="minimum height"
           minRows={12}
           ref={finalRef}
-          //   placeholder="Minimum 3 rows"
-          //   style={{ width: 200 }}
+        //   placeholder="Minimum 3 rows"
+        //   style={{ width: 200 }}
         />
       </Box>
       <button className="button" id="copy-button" data-clipboard-target="#final" onClick={handleCopy}>
