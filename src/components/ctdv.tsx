@@ -27,46 +27,50 @@ export default function Ctdv() {
   const contentRef: any = React.useRef()
   const finalRef: any = React.useRef()
   const [name, setName] = React.useState("")
-  const handleChangeName = (event: SelectChangeEvent) => {
-    setName(event.target.value as string)
+  function handleChangeName(event: SelectChangeEvent) {
+    setName(event.target.value)
   }
   const [breed, setBreed] = React.useState("")
-  const handleChangeBreed = (event: SelectChangeEvent) => {
-    setBreed(event.target.value as string)
+  function handleChangeBreed(event: SelectChangeEvent) {
+    setBreed(event.target.value)
   }
   const [gender, setGender] = React.useState("")
-  const handleChangeGender = (event: SelectChangeEvent) => {
-    setGender(event.target.value as string)
+  function handleChangeGender(event: SelectChangeEvent) {
+    setGender(event.target.value)
   }
   const [location, setLocation] = React.useState("")
-  const handleChangeLocation = (event: SelectChangeEvent) => {
-    setLocation(event.target.value as string)
+  function handleChangeLocation(event: SelectChangeEvent) {
+    setLocation(event.target.value)
   }
   const [time, setTime] = React.useState("")
-  const handleChangeTime = (event: SelectChangeEvent) => {
-    setTime(event.target.value as string)
+  function handleChangeTime(event: SelectChangeEvent) {
+    setTime(event.target.value)
   }
   const [info, setInfo] = React.useState("")
-  const handleChangeInfo = (event: SelectChangeEvent) => {
-    setInfo(event.target.value as string)
+  function handleChangeInfo(event: SelectChangeEvent) {
+    setInfo(event.target.value)
   }
   const [phone, setPhone] = React.useState("")
-  const handleChangePhone = (event: SelectChangeEvent) => {
-    setPhone(event.target.value as string)
+  function handleChangePhone(event: SelectChangeEvent) {
+    setPhone(event.target.value)
   }
   const [assignedContent, setAssignedContent] = React.useState([1, 2, 3])
   const [isAssigned, setIsAssigned] = React.useState(false)
-  const handleAssign = () => {
+  function handleAssign() {
     setIsAssigned(true)
     setOpen(false)
   }
-  const handleChangeOption = (event: SelectChangeEvent) => {
+  function handleChangeOption(event: SelectChangeEvent) {
     setOption(event.target.value)
     setTitle(optionTitle.get(event.target.value))
   }
   const [open, setOpen] = React.useState(false)
-  const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  function handleOpen() {
+    setOpen(true)
+  }
+  function handleClose() {
+    setOpen(false)
+  }
 
   React.useEffect(() => {
     if (isAssigned) {
@@ -85,10 +89,14 @@ Sdt liên hệ: ${phone}`
 
     finalRef.current.value = `${title}
     
-${contentRef.current.value.replaceAll(" :", ":")}
+${contentRef.current.value
+  .replaceAll(" :", ":")
+  .replaceAll(" ,", ",")
+  .replaceAll(" / mất:", ":")
+  .replaceAll("Giống chó/mèo", "Giống")}
     
 ${footer}`
-  }, [title, isContentChanged, isAssigned, name, gender, breed, location, info,time, phone])
+  }, [title, isContentChanged, isAssigned, name, gender, breed, location, info, time, phone])
 
   const handleContent = () => {
     setAssignedContent(contentRef.current.value.split(/\n/))
@@ -143,8 +151,8 @@ ${footer}`
           minRows={10}
           onChange={handleContent}
           ref={contentRef}
-        //   placeholder="Minimum 3 rows"
-        //   style={{ width: 200 }}
+          //   placeholder="Minimum 3 rows"
+          //   style={{ width: 200 }}
         />
         <br></br>
         <div>
@@ -165,8 +173,8 @@ ${footer}`
                   label="name"
                   onChange={handleChangeName}
                 >
-                  {assignedContent.map((contentItem, index) => (
-                    <MenuItem key={index} value={contentItem}>
+                  {assignedContent.map((contentItem) => (
+                    <MenuItem key={contentItem} value={contentItem}>
                       {contentItem}
                     </MenuItem>
                   ))}
@@ -181,8 +189,8 @@ ${footer}`
                   label="breed"
                   onChange={handleChangeBreed}
                 >
-                  {assignedContent.map((contentItem, index) => (
-                    <MenuItem key={index} value={contentItem}>
+                  {assignedContent.map((contentItem) => (
+                    <MenuItem key={contentItem} value={contentItem}>
                       {contentItem}
                     </MenuItem>
                   ))}
@@ -197,8 +205,8 @@ ${footer}`
                   label="gender"
                   onChange={handleChangeGender}
                 >
-                  {assignedContent.map((contentItem, index) => (
-                    <MenuItem key={index} value={contentItem}>
+                  {assignedContent.map((contentItem) => (
+                    <MenuItem key={contentItem} value={contentItem}>
                       {contentItem}
                     </MenuItem>
                   ))}
@@ -213,8 +221,8 @@ ${footer}`
                   label="location"
                   onChange={handleChangeLocation}
                 >
-                  {assignedContent.map((contentItem, index) => (
-                    <MenuItem key={index} value={contentItem}>
+                  {assignedContent.map((contentItem) => (
+                    <MenuItem key={contentItem} value={contentItem}>
                       {contentItem}
                     </MenuItem>
                   ))}
@@ -229,8 +237,8 @@ ${footer}`
                   label="time"
                   onChange={handleChangeTime}
                 >
-                  {assignedContent.map((contentItem, index) => (
-                    <MenuItem key={index} value={contentItem}>
+                  {assignedContent.map((contentItem) => (
+                    <MenuItem key={contentItem} value={contentItem}>
                       {contentItem}
                     </MenuItem>
                   ))}
@@ -245,8 +253,8 @@ ${footer}`
                   label="info"
                   onChange={handleChangeInfo}
                 >
-                  {assignedContent.map((contentItem, index) => (
-                    <MenuItem key={index} value={contentItem}>
+                  {assignedContent.map((contentItem) => (
+                    <MenuItem key={contentItem} value={contentItem}>
                       {contentItem}
                     </MenuItem>
                   ))}
@@ -261,8 +269,8 @@ ${footer}`
                   label="phone"
                   onChange={handleChangePhone}
                 >
-                  {assignedContent.map((contentItem, index) => (
-                    <MenuItem key={index} value={contentItem}>
+                  {assignedContent.map((contentItem) => (
+                    <MenuItem key={contentItem} value={contentItem}>
                       {contentItem}
                     </MenuItem>
                   ))}
@@ -286,8 +294,8 @@ ${footer}`
           aria-label="minimum height"
           minRows={12}
           ref={finalRef}
-        //   placeholder="Minimum 3 rows"
-        //   style={{ width: 200 }}
+          //   placeholder="Minimum 3 rows"
+          //   style={{ width: 200 }}
         />
       </Box>
       <button className="button" id="copy-button" data-clipboard-target="#final" onClick={handleCopy}>
