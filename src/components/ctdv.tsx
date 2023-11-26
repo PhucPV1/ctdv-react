@@ -1,128 +1,178 @@
-import * as React from "react"
-import Box from "@mui/material/Box"
-import InputLabel from "@mui/material/InputLabel"
-import MenuItem from "@mui/material/MenuItem"
-import FormControl from "@mui/material/FormControl"
-import Select, { SelectChangeEvent } from "@mui/material/Select"
-import "./ctdv.css"
-import "@fontsource/roboto/300.css"
-import "@fontsource/roboto/400.css"
-import "@fontsource/roboto/500.css"
-import "@fontsource/roboto/700.css"
-import PetsSharpIcon from "@mui/icons-material/PetsSharp"
-import TextareaAutosize from "@mui/material/TextareaAutosize"
-import Modal from "@mui/material/Modal"
-import Button from "@mui/material/Button"
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import './ctdv.css';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import PetsSharpIcon from '@mui/icons-material/PetsSharp';
+import TextareaAutosize from '@mui/material/TextareaAutosize';
+import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
+import { useReducer } from 'react';
+
+type AssignInfo = {
+  name: string;
+  breed: string;
+  gender: string;
+  location: string;
+  time: string;
+  info: string;
+  phone: string;
+};
+type ActionType = {
+  type:
+    | 'setName'
+    | 'setBreed'
+    | 'setGender'
+    | 'setLocation'
+    | 'setTime'
+    | 'setInfo'
+    | 'setPhone';
+  payload: string;
+};
+const initialAssignInfo: AssignInfo = {
+  gender: '',
+  breed: '',
+  info: '',
+  location: '',
+  name: '',
+  phone: '',
+  time: '',
+};
+
+type KeyInfo = { translate: string; order: number };
+const ContentKeyInfo = new Map<keyof AssignInfo, KeyInfo>([
+  ['name', { translate: 'Tên', order: 0 }],
+  ['breed', { translate: 'Giống', order: 1 }],
+  ['gender', { translate: 'Giới tính', order: 2 }],
+  ['location', { translate: 'Khu vực lạc', order: 3 }],
+  ['time', { translate: 'Thời gian lạc', order: 4 }],
+  ['info', { translate: 'Đặc điểm nhận dạng', order: 5 }],
+  ['phone', { translate: 'Sdt liên hệ', order: 6 }],
+]);
+const optionTitle = new Map();
+optionTitle.set('dog', 'TÌM CHÓ LẠC');
+optionTitle.set('cat', 'TÌM MÈO LẠC');
+optionTitle.set('dogFindOwner', 'CHÓ LẠC TÌM CHỦ');
+optionTitle.set('catFindOwner', 'MÈO LẠC TÌM CHỦ');
+
+function reducer(state: AssignInfo, action: ActionType): AssignInfo {
+  switch (action.type) {
+    case 'setName':
+      return { ...state, name: action.payload };
+    case 'setBreed':
+      return { ...state, breed: action.payload };
+    case 'setGender':
+      return { ...state, gender: action.payload };
+    case 'setLocation':
+      return { ...state, location: action.payload };
+    case 'setTime':
+      return { ...state, time: action.payload };
+    case 'setInfo':
+      return { ...state, info: action.payload };
+    case 'setPhone':
+      return { ...state, phone: action.payload };
+    default:
+      return state;
+  }
+}
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '80%',
+  bgcolor: 'background.paper',
+  border: '2px solid rgba(207, 76, 247, 0.863);',
+  boxShadow: 24,
+  p: 4,
+  bg: '-moz-linear-gradient(-45deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%)',
+};
+
+const generateContent = (assignInfo: AssignInfo) => {
+  const keys = Object.keys(assignInfo).sort((a, b) => {
+    return (
+      ContentKeyInfo.get(a as keyof AssignInfo)?.order! -
+      ContentKeyInfo.get(b as keyof AssignInfo)?.order!
+    );
+  }) as Array<keyof AssignInfo>;
+  return keys.reduce((content, currentKey) => {
+    if (assignInfo[currentKey] !== '') {
+      const breakDown = content === '' ? '' : '\n';
+      return `${content}${breakDown}${ContentKeyInfo.get(currentKey)
+        ?.translate}: ${assignInfo[currentKey]}`;
+    }
+    return content;
+  }, '');
+};
 
 export default function Ctdv() {
-  const optionTitle = new Map()
-  optionTitle.set("dog", "TÌM CHÓ LẠC")
-  optionTitle.set("cat", "TÌM MÈO LẠC")
-  optionTitle.set("dogFindOwner", "CHÓ LẠC TÌM CHỦ")
-  optionTitle.set("catFindOwner", "MÈO LẠC TÌM CHỦ")
+  const [option, setOption] = React.useState('dog');
+  const [title, setTitle] = React.useState('TÌM CHÓ LẠC');
+  const [isContentChanged, setIsContentChanged] = React.useState(false);
+  const contentRef: any = React.useRef();
+  const finalRef: any = React.useRef();
 
-  const [option, setOption] = React.useState("dog")
-  const [title, setTitle] = React.useState("TÌM CHÓ LẠC")
-  const [isContentChanged, setIsContentChanged] = React.useState(false)
-  const contentRef: any = React.useRef()
-  const finalRef: any = React.useRef()
-  const [name, setName] = React.useState("")
-  function handleChangeName(event: SelectChangeEvent) {
-    setName(event.target.value)
-  }
-  const [breed, setBreed] = React.useState("")
-  function handleChangeBreed(event: SelectChangeEvent) {
-    setBreed(event.target.value)
-  }
-  const [gender, setGender] = React.useState("")
-  function handleChangeGender(event: SelectChangeEvent) {
-    setGender(event.target.value)
-  }
-  const [location, setLocation] = React.useState("")
-  function handleChangeLocation(event: SelectChangeEvent) {
-    setLocation(event.target.value)
-  }
-  const [time, setTime] = React.useState("")
-  function handleChangeTime(event: SelectChangeEvent) {
-    setTime(event.target.value)
-  }
-  const [info, setInfo] = React.useState("")
-  function handleChangeInfo(event: SelectChangeEvent) {
-    setInfo(event.target.value)
-  }
-  const [phone, setPhone] = React.useState("")
-  function handleChangePhone(event: SelectChangeEvent) {
-    setPhone(event.target.value)
-  }
-  const [assignedContent, setAssignedContent] = React.useState([1, 2, 3])
-  const [isAssigned, setIsAssigned] = React.useState(false)
+  const [assignInfo, dispatch] = useReducer(reducer, initialAssignInfo);
+
+  const [assignedContent, setAssignedContent] = React.useState([1, 2, 3]);
+  const [isAssigned, setIsAssigned] = React.useState(false);
   function handleAssign() {
-    setIsAssigned(true)
-    setOpen(false)
+    setIsAssigned(true);
+    setOpen(false);
   }
   function handleChangeOption(event: SelectChangeEvent) {
-    setOption(event.target.value)
-    setTitle(optionTitle.get(event.target.value))
+    setOption(event.target.value);
+    setTitle(optionTitle.get(event.target.value));
   }
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
   function handleOpen() {
-    setOpen(true)
+    setOpen(true);
   }
   function handleClose() {
-    setOpen(false)
+    setOpen(false);
   }
 
   React.useEffect(() => {
     if (isAssigned) {
-      contentRef.current.value = `Tên: ${name}
-Giống: ${breed} 
-Giới tính: ${gender}
-Khu vực lạc: ${location} 
-Thời gian lạc: ${time} 
-Đặc điểm nhận dạng: ${info}
-Sdt liên hệ: ${phone}`
+      contentRef.current.value = generateContent(assignInfo);
     }
     const footer =
-      title === "TÌM CHÓ LẠC" || title === "TÌM MÈO LẠC"
-        ? "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ."
-        : "Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn."
+      title === 'TÌM CHÓ LẠC' || title === 'TÌM MÈO LẠC'
+        ? 'Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ.'
+        : 'Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn.';
 
     finalRef.current.value = `${title}
     
 ${contentRef.current.value
-  .replaceAll(" :", ":")
-  .replaceAll(" ,", ",")
-  .replaceAll(" / mất:", ":")
-  .replaceAll("Giống chó/mèo", "Giống")}
+  .replaceAll(' :', ':')
+  .replaceAll(' ,', ',')
+  .replaceAll(' / mất:', ':')
+  .replaceAll('Giống chó/mèo', 'Giống')}
     
-${footer}`
-  }, [title, isContentChanged, isAssigned, name, gender, breed, location, info, time, phone])
+${footer}`;
+  }, [title, isContentChanged, isAssigned, assignInfo]);
 
   const handleContent = () => {
-    setAssignedContent(contentRef.current.value.split(/\n/))
-    setIsContentChanged(!isContentChanged)
-  }
+    setAssignedContent(contentRef.current.value.split(/\n/));
+    setIsContentChanged(!isContentChanged);
+  };
   const handleCopy = () => {
     navigator.clipboard
       .writeText(finalRef.current.value)
-      .then(() => alert("copy success"))
-      .catch(() => alert("copy fail"))
-  }
+      .then(() => alert('copy success'))
+      .catch(() => alert('copy fail'));
+  };
   const handleReload = () => {
-    window.location.reload()
-  }
-  const style = {
-    position: "absolute" as "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "80%",
-    bgcolor: "background.paper",
-    border: "2px solid rgba(207, 76, 247, 0.863);",
-    boxShadow: 24,
-    p: 4,
-    bg: "-moz-linear-gradient(-45deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%)",
-  }
+    window.location.reload();
+  };
+
   return (
     <>
       <PetsSharpIcon className="title-icon" />
@@ -130,7 +180,10 @@ ${footer}`
       <p>Thể loại</p>
       <Box sx={{ minWidth: 120 }}>
         <FormControl color="secondary" className="options">
-          <InputLabel id="demo-simple-select-label" className="options"></InputLabel>
+          <InputLabel
+            id="demo-simple-select-label"
+            className="options"
+          ></InputLabel>
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
@@ -138,10 +191,10 @@ ${footer}`
             // label="Thể loại"
             onChange={handleChangeOption}
           >
-            <MenuItem value={"dog"}>Tìm Chó Lạc</MenuItem>
-            <MenuItem value={"cat"}>Tìm Mèo Lạc</MenuItem>
-            <MenuItem value={"dogFindOwner"}>Chó lạc tìm chủ</MenuItem>
-            <MenuItem value={"catFindOwner"}>Mèo lạc tìm chủ</MenuItem>
+            <MenuItem value={'dog'}>Tìm Chó Lạc</MenuItem>
+            <MenuItem value={'cat'}>Tìm Mèo Lạc</MenuItem>
+            <MenuItem value={'dogFindOwner'}>Chó lạc tìm chủ</MenuItem>
+            <MenuItem value={'catFindOwner'}>Mèo lạc tìm chủ</MenuItem>
           </Select>
         </FormControl>
         <br></br>
@@ -164,14 +217,19 @@ ${footer}`
             aria-describedby="modal-modal-description"
           >
             <Box sx={style}>
-              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+              <FormControl
+                id="content_title_type"
+                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
+              >
                 <InputLabel id="demo-simple-select-label">Tên</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={name}
+                  value={assignInfo.name}
                   label="name"
-                  onChange={handleChangeName}
+                  onChange={(e) =>
+                    dispatch({ type: 'setName', payload: e.target.value })
+                  }
                 >
                   {assignedContent.map((contentItem) => (
                     <MenuItem key={contentItem} value={contentItem}>
@@ -180,14 +238,19 @@ ${footer}`
                   ))}
                 </Select>
               </FormControl>
-              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+              <FormControl
+                id="content_title_type"
+                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
+              >
                 <InputLabel id="demo-simple-select-label">Giống</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={breed}
+                  value={assignInfo.breed}
                   label="breed"
-                  onChange={handleChangeBreed}
+                  onChange={(e) =>
+                    dispatch({ type: 'setBreed', payload: e.target.value })
+                  }
                 >
                   {assignedContent.map((contentItem) => (
                     <MenuItem key={contentItem} value={contentItem}>
@@ -196,14 +259,19 @@ ${footer}`
                   ))}
                 </Select>
               </FormControl>
-              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+              <FormControl
+                id="content_title_type"
+                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
+              >
                 <InputLabel id="demo-simple-select-label">Giới tính</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={gender}
+                  value={assignInfo.gender}
                   label="gender"
-                  onChange={handleChangeGender}
+                  onChange={(e) =>
+                    dispatch({ type: 'setGender', payload: e.target.value })
+                  }
                 >
                   {assignedContent.map((contentItem) => (
                     <MenuItem key={contentItem} value={contentItem}>
@@ -212,14 +280,21 @@ ${footer}`
                   ))}
                 </Select>
               </FormControl>
-              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
-                <InputLabel id="demo-simple-select-label">Khu vực lạc</InputLabel>
+              <FormControl
+                id="content_title_type"
+                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
+              >
+                <InputLabel id="demo-simple-select-label">
+                  Khu vực lạc
+                </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={location}
+                  value={assignInfo.location}
                   label="location"
-                  onChange={handleChangeLocation}
+                  onChange={(e) =>
+                    dispatch({ type: 'setLocation', payload: e.target.value })
+                  }
                 >
                   {assignedContent.map((contentItem) => (
                     <MenuItem key={contentItem} value={contentItem}>
@@ -228,14 +303,21 @@ ${footer}`
                   ))}
                 </Select>
               </FormControl>
-              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
-                <InputLabel id="demo-simple-select-label">Thời gian lạc</InputLabel>
+              <FormControl
+                id="content_title_type"
+                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
+              >
+                <InputLabel id="demo-simple-select-label">
+                  Thời gian lạc
+                </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={time}
+                  value={assignInfo.time}
                   label="time"
-                  onChange={handleChangeTime}
+                  onChange={(e) =>
+                    dispatch({ type: 'setTime', payload: e.target.value })
+                  }
                 >
                   {assignedContent.map((contentItem) => (
                     <MenuItem key={contentItem} value={contentItem}>
@@ -244,14 +326,19 @@ ${footer}`
                   ))}
                 </Select>
               </FormControl>
-              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+              <FormControl
+                id="content_title_type"
+                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
+              >
                 <InputLabel id="demo-simple-select-label">Đặc điểm</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={info}
+                  value={assignInfo.info}
                   label="info"
-                  onChange={handleChangeInfo}
+                  onChange={(e) =>
+                    dispatch({ type: 'setInfo', payload: e.target.value })
+                  }
                 >
                   {assignedContent.map((contentItem) => (
                     <MenuItem key={contentItem} value={contentItem}>
@@ -260,14 +347,19 @@ ${footer}`
                   ))}
                 </Select>
               </FormControl>
-              <FormControl id="content_title_type" sx={{ m: 1, minWidth: 120, inlineSize: 40 }}>
+              <FormControl
+                id="content_title_type"
+                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
+              >
                 <InputLabel id="demo-simple-select-label">Sdt</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={phone}
+                  value={assignInfo.phone}
                   label="phone"
-                  onChange={handleChangePhone}
+                  onChange={(e) =>
+                    dispatch({ type: 'setPhone', payload: e.target.value })
+                  }
                 >
                   {assignedContent.map((contentItem) => (
                     <MenuItem key={contentItem} value={contentItem}>
@@ -278,10 +370,19 @@ ${footer}`
               </FormControl>
               <br />
               <div id="Assign-Reload">
-                <Button variant="contained" sx={{ margin: "0 auto" }} onClick={handleAssign}>
+                <Button
+                  variant="contained"
+                  sx={{ margin: '0 auto' }}
+                  onClick={handleAssign}
+                >
                   Assign
                 </Button>
-                <Button variant="contained" color="error" sx={{ margin: "0 auto" }} onClick={handleReload}>
+                <Button
+                  variant="contained"
+                  color="error"
+                  sx={{ margin: '0 auto' }}
+                  onClick={handleReload}
+                >
                   Reload
                 </Button>
               </div>
@@ -298,9 +399,14 @@ ${footer}`
           //   style={{ width: 200 }}
         />
       </Box>
-      <button className="button" id="copy-button" data-clipboard-target="#final" onClick={handleCopy}>
+      <button
+        className="button"
+        id="copy-button"
+        data-clipboard-target="#final"
+        onClick={handleCopy}
+      >
         Copy
       </button>
     </>
-  )
+  );
 }
