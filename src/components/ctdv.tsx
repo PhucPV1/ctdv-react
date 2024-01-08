@@ -26,13 +26,13 @@ type AssignInfo = {
 };
 type ActionType = {
   type:
-    | 'setName'
-    | 'setBreed'
-    | 'setGender'
-    | 'setLocation'
-    | 'setTime'
-    | 'setInfo'
-    | 'setPhone';
+      | 'setName'
+      | 'setBreed'
+      | 'setGender'
+      | 'setLocation'
+      | 'setTime'
+      | 'setInfo'
+      | 'setPhone';
   payload: string;
 };
 const initialAssignInfo: AssignInfo = {
@@ -98,15 +98,15 @@ const style = {
 const generateContent = (assignInfo: AssignInfo) => {
   const keys = Object.keys(assignInfo).sort((a, b) => {
     return (
-      ContentKeyInfo.get(a as keyof AssignInfo)?.order! -
-      ContentKeyInfo.get(b as keyof AssignInfo)?.order!
+        ContentKeyInfo.get(a as keyof AssignInfo)?.order! -
+        ContentKeyInfo.get(b as keyof AssignInfo)?.order!
     );
   }) as Array<keyof AssignInfo>;
   return keys.reduce((content, currentKey) => {
     if (assignInfo[currentKey] !== '') {
       const breakDown = content === '' ? '' : '\n';
       return `${content}${breakDown}${ContentKeyInfo.get(currentKey)
-        ?.translate}: ${assignInfo[currentKey]}`;
+          ?.translate}: ${assignInfo[currentKey]}`;
     }
     return content;
   }, '');
@@ -144,17 +144,17 @@ export default function Ctdv() {
       contentRef.current.value = generateContent(assignInfo);
     }
     const footer =
-      title === 'TÌM CHÓ LẠC' || title === 'TÌM MÈO LẠC'
-        ? 'Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ.'
-        : 'Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn.';
+        title === 'TÌM CHÓ LẠC' || title === 'TÌM MÈO LẠC'
+            ? 'Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ.'
+            : 'Nhờ mọi người giành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn.';
 
     finalRef.current.value = `${title}
     
 ${contentRef.current.value
-  .replaceAll(' :', ':')
-  .replaceAll(' ,', ',')
-  .replaceAll(' / mất:', ':')
-  .replaceAll('Giống chó/mèo', 'Giống')}
+        .replaceAll(' :', ':')
+        .replaceAll(' ,', ',')
+        .replaceAll(' / mất:', ':')
+        .replaceAll('Giống chó/mèo', 'Giống')}
     
 ${footer}`;
   }, [title, isContentChanged, isAssigned, assignInfo]);
@@ -165,248 +165,258 @@ ${footer}`;
   };
   const handleCopy = () => {
     navigator.clipboard
-      .writeText(finalRef.current.value)
-      .then(() => alert('copy success'))
-      .catch(() => alert('copy fail'));
+        .writeText(finalRef.current.value)
+        .then(() => alert('copy success'))
+        .catch(() => alert('copy fail'));
+  };
+  const handleReplicate = () => {
+    navigator.clipboard
+        .readText()
+        .then((value) => {
+          contentRef.current.value= value;
+          setIsContentChanged(!isContentChanged);
+        })
+        .catch(() => alert('copy fail'));
   };
   const handleReload = () => {
     window.location.reload();
   };
 
   return (
-    <>
-      <PetsSharpIcon className="title-icon" />
-      <h1>Tìm Chó Mèo Lạc Đà Nẵng</h1>
-      <p>Thể loại</p>
-      <Box sx={{ minWidth: 120 }}>
-        <FormControl color="secondary" className="options">
-          <InputLabel
-            id="demo-simple-select-label"
-            className="options"
-          ></InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={option}
-            // label="Thể loại"
-            onChange={handleChangeOption}
-          >
-            <MenuItem value={'dog'}>Tìm Chó Lạc</MenuItem>
-            <MenuItem value={'cat'}>Tìm Mèo Lạc</MenuItem>
-            <MenuItem value={'dogFindOwner'}>Chó lạc tìm chủ</MenuItem>
-            <MenuItem value={'catFindOwner'}>Mèo lạc tìm chủ</MenuItem>
-          </Select>
-        </FormControl>
-        <br></br>
-        <p>Nội dung</p>
-        <TextareaAutosize
-          aria-label="minimum height"
-          minRows={10}
-          onChange={handleContent}
-          ref={contentRef}
-          //   placeholder="Minimum 3 rows"
-          //   style={{ width: 200 }}
-        />
-        <br></br>
-        <div>
-          <Button onClick={handleOpen}>Assign</Button>
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <FormControl
-                id="content_title_type"
-                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-              >
-                <InputLabel id="demo-simple-select-label">Tên</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={assignInfo.name}
-                  label="name"
-                  onChange={(e) =>
-                    dispatch({ type: 'setName', payload: e.target.value })
-                  }
+      <>
+        <PetsSharpIcon className="title-icon" />
+        <h1>Tìm Chó Mèo Lạc Đà Nẵng</h1>
+        <p>Thể loại</p>
+        <Box sx={{ minWidth: 120 }}>
+          <FormControl color="secondary" className="options">
+            <InputLabel
+                id="demo-simple-select-label"
+                className="options"
+            ></InputLabel>
+            <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={option}
+                // label="Thể loại"
+                onChange={handleChangeOption}
+            >
+              <MenuItem value={'dog'}>Tìm Chó Lạc</MenuItem>
+              <MenuItem value={'cat'}>Tìm Mèo Lạc</MenuItem>
+              <MenuItem value={'dogFindOwner'}>Chó lạc tìm chủ</MenuItem>
+              <MenuItem value={'catFindOwner'}>Mèo lạc tìm chủ</MenuItem>
+            </Select>
+          </FormControl>
+          <br></br>
+          <p>Nội dung</p>
+          <TextareaAutosize
+              aria-label="minimum height"
+              minRows={10}
+              onChange={handleContent}
+              ref={contentRef}
+              //   placeholder="Minimum 3 rows"
+              //   style={{ width: 200 }}
+          />
+          <br></br>
+          <div>
+            <Button onClick={handleOpen}>Assign</Button>
+            <Button onClick={handleReplicate} color={'secondary'}>Replicate</Button>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+              <Box sx={style}>
+                <FormControl
+                    id="content_title_type"
+                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
                 >
-                  {assignedContent.map((contentItem) => (
-                    <MenuItem key={contentItem} value={contentItem}>
-                      {contentItem}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                id="content_title_type"
-                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-              >
-                <InputLabel id="demo-simple-select-label">Giống</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={assignInfo.breed}
-                  label="breed"
-                  onChange={(e) =>
-                    dispatch({ type: 'setBreed', payload: e.target.value })
-                  }
+                  <InputLabel id="demo-simple-select-label">Tên</InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={assignInfo.name}
+                      label="name"
+                      onChange={(e) =>
+                          dispatch({ type: 'setName', payload: e.target.value })
+                      }
+                  >
+                    {assignedContent.map((contentItem) => (
+                        <MenuItem key={contentItem} value={contentItem}>
+                          {contentItem}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl
+                    id="content_title_type"
+                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
                 >
-                  {assignedContent.map((contentItem) => (
-                    <MenuItem key={contentItem} value={contentItem}>
-                      {contentItem}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                id="content_title_type"
-                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-              >
-                <InputLabel id="demo-simple-select-label">Giới tính</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={assignInfo.gender}
-                  label="gender"
-                  onChange={(e) =>
-                    dispatch({ type: 'setGender', payload: e.target.value })
-                  }
+                  <InputLabel id="demo-simple-select-label">Giống</InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={assignInfo.breed}
+                      label="breed"
+                      onChange={(e) =>
+                          dispatch({ type: 'setBreed', payload: e.target.value })
+                      }
+                  >
+                    {assignedContent.map((contentItem) => (
+                        <MenuItem key={contentItem} value={contentItem}>
+                          {contentItem}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl
+                    id="content_title_type"
+                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
                 >
-                  {assignedContent.map((contentItem) => (
-                    <MenuItem key={contentItem} value={contentItem}>
-                      {contentItem}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                id="content_title_type"
-                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-              >
-                <InputLabel id="demo-simple-select-label">
-                  Khu vực lạc
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={assignInfo.location}
-                  label="location"
-                  onChange={(e) =>
-                    dispatch({ type: 'setLocation', payload: e.target.value })
-                  }
+                  <InputLabel id="demo-simple-select-label">Giới tính</InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={assignInfo.gender}
+                      label="gender"
+                      onChange={(e) =>
+                          dispatch({ type: 'setGender', payload: e.target.value })
+                      }
+                  >
+                    {assignedContent.map((contentItem) => (
+                        <MenuItem key={contentItem} value={contentItem}>
+                          {contentItem}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl
+                    id="content_title_type"
+                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
                 >
-                  {assignedContent.map((contentItem) => (
-                    <MenuItem key={contentItem} value={contentItem}>
-                      {contentItem}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                id="content_title_type"
-                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-              >
-                <InputLabel id="demo-simple-select-label">
-                  Thời gian lạc
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={assignInfo.time}
-                  label="time"
-                  onChange={(e) =>
-                    dispatch({ type: 'setTime', payload: e.target.value })
-                  }
+                  <InputLabel id="demo-simple-select-label">
+                    Khu vực lạc
+                  </InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={assignInfo.location}
+                      label="location"
+                      onChange={(e) =>
+                          dispatch({ type: 'setLocation', payload: e.target.value })
+                      }
+                  >
+                    {assignedContent.map((contentItem) => (
+                        <MenuItem key={contentItem} value={contentItem}>
+                          {contentItem}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl
+                    id="content_title_type"
+                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
                 >
-                  {assignedContent.map((contentItem) => (
-                    <MenuItem key={contentItem} value={contentItem}>
-                      {contentItem}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                id="content_title_type"
-                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-              >
-                <InputLabel id="demo-simple-select-label">Đặc điểm</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={assignInfo.info}
-                  label="info"
-                  onChange={(e) =>
-                    dispatch({ type: 'setInfo', payload: e.target.value })
-                  }
+                  <InputLabel id="demo-simple-select-label">
+                    Thời gian lạc
+                  </InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={assignInfo.time}
+                      label="time"
+                      onChange={(e) =>
+                          dispatch({ type: 'setTime', payload: e.target.value })
+                      }
+                  >
+                    {assignedContent.map((contentItem) => (
+                        <MenuItem key={contentItem} value={contentItem}>
+                          {contentItem}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl
+                    id="content_title_type"
+                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
                 >
-                  {assignedContent.map((contentItem) => (
-                    <MenuItem key={contentItem} value={contentItem}>
-                      {contentItem}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                id="content_title_type"
-                sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-              >
-                <InputLabel id="demo-simple-select-label">Sdt</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={assignInfo.phone}
-                  label="phone"
-                  onChange={(e) =>
-                    dispatch({ type: 'setPhone', payload: e.target.value })
-                  }
+                  <InputLabel id="demo-simple-select-label">Đặc điểm</InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={assignInfo.info}
+                      label="info"
+                      onChange={(e) =>
+                          dispatch({ type: 'setInfo', payload: e.target.value })
+                      }
+                  >
+                    {assignedContent.map((contentItem) => (
+                        <MenuItem key={contentItem} value={contentItem}>
+                          {contentItem}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl
+                    id="content_title_type"
+                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
                 >
-                  {assignedContent.map((contentItem) => (
-                    <MenuItem key={contentItem} value={contentItem}>
-                      {contentItem}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <br />
-              <div id="Assign-Reload">
-                <Button
-                  variant="contained"
-                  sx={{ margin: '0 auto' }}
-                  onClick={handleAssign}
-                >
-                  Assign
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  sx={{ margin: '0 auto' }}
-                  onClick={handleReload}
-                >
-                  Reload
-                </Button>
-              </div>
-            </Box>
-          </Modal>
-        </div>
+                  <InputLabel id="demo-simple-select-label">Sdt</InputLabel>
+                  <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={assignInfo.phone}
+                      label="phone"
+                      onChange={(e) =>
+                          dispatch({ type: 'setPhone', payload: e.target.value })
+                      }
+                  >
+                    {assignedContent.map((contentItem) => (
+                        <MenuItem key={contentItem} value={contentItem}>
+                          {contentItem}
+                        </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <br />
+                <div id="Assign-Reload">
+                  <Button
+                      variant="contained"
+                      sx={{ margin: '0 auto' }}
+                      onClick={handleAssign}
+                  >
+                    Assign
+                  </Button>
+                  <Button
+                      variant="contained"
+                      color="error"
+                      sx={{ margin: '0 auto' }}
+                      onClick={handleReload}
+                  >
+                    Reload
+                  </Button>
+                </div>
+              </Box>
+            </Modal>
+          </div>
 
-        <p>Bài Viết</p>
-        <TextareaAutosize
-          aria-label="minimum height"
-          minRows={12}
-          ref={finalRef}
-          //   placeholder="Minimum 3 rows"
-          //   style={{ width: 200 }}
-        />
-      </Box>
-      <button
-        className="button"
-        id="copy-button"
-        data-clipboard-target="#final"
-        onClick={handleCopy}
-      >
-        Copy
-      </button>
-    </>
+          <p>Bài Viết</p>
+          <TextareaAutosize
+              aria-label="minimum height"
+              minRows={12}
+              ref={finalRef}
+              //   placeholder="Minimum 3 rows"
+              //   style={{ width: 200 }}
+          />
+        </Box>
+        <button
+            className="button"
+            id="copy-button"
+            data-clipboard-target="#final"
+            onClick={handleCopy}
+        >
+          Copy
+        </button>
+      </>
   );
 }
