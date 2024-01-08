@@ -176,7 +176,7 @@ ${footer}`;
           contentRef.current.value= value;
           setIsContentChanged(!isContentChanged);
         })
-        .catch(() => alert('copy fail'));
+        .catch(() => alert('Replicate fail'));
   };
   const handleReload = () => {
     window.location.reload();
