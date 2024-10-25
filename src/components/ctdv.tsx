@@ -153,6 +153,8 @@ export default function Ctdv() {
 ${contentRef.current.value
         .replaceAll(' :', ':')
         .replaceAll(' ,', ',')
+        .replaceAll('( ','(')
+        .replaceAll(' )',')')
         .replaceAll(' / mất:', ':')
         .replaceAll('Giống chó/mèo', 'Giống').split('\n').map((line:string)=>{return line.charAt(0).toUpperCase()+line.slice(1)}).join('\n')}
     
