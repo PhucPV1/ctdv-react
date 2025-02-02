@@ -121,7 +121,7 @@ export default function Ctdv() {
 
   const [assignInfo, dispatch] = useReducer(reducer, initialAssignInfo);
 
-  const [assignedContent, setAssignedContent] = React.useState([1, 2, 3]);
+  const [assignedContent, setAssignedContent] = React.useState(['a', 'b', 'c']);
   const [isAssigned, setIsAssigned] = React.useState(false);
   function handleAssign() {
     setIsAssigned(true);
@@ -176,6 +176,7 @@ ${footer}`;
         .readText()
         .then((value) => {
           contentRef.current.value= value;
+          setAssignedContent(contentRef.current.value.split(/\n/));
           setIsContentChanged(!isContentChanged);
         })
         .catch(() => alert('Replicate fail'));
