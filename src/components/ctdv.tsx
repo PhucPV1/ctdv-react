@@ -181,6 +181,17 @@ ${footer}`;
         })
         .catch(() => alert('Replicate fail'));
   };
+  const handleAppend = () => {
+    navigator.clipboard
+        .readText()
+        .then((value) => {
+          const currentValue = contentRef.current.value;
+          contentRef.current.value = currentValue ? `${currentValue}\n${value}` : value;
+          setAssignedContent(contentRef.current.value.split(/\n/));
+          setIsContentChanged(!isContentChanged);
+        })
+        .catch(() => alert('Append fail'));
+  };
   const handleReload = () => {
     window.location.reload();
   };
@@ -223,6 +234,7 @@ ${footer}`;
           <div>
             <Button onClick={handleOpen}>Assign</Button>
             <Button onClick={handleReplicate} color={'secondary'}>Replicate</Button>
+            <Button onClick={handleAppend} color={'success'}>Append</Button>
             <Modal
                 open={open}
                 onClose={handleClose}
