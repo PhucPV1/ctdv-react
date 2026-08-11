@@ -14,6 +14,7 @@ import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import { useReducer } from 'react';
+import { generateWithAI } from '../utils/aiGen';
 
 type AssignInfo = {
   name: string;
@@ -123,6 +124,25 @@ export default function Ctdv() {
 
   const [assignedContent, setAssignedContent] = React.useState(['a', 'b', 'c']);
   const [isAssigned, setIsAssigned] = React.useState(false);
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  
+  async function handleAiGen() {
+    if (!process.env.REACT_APP_GEMINI_API_KEY) {
+      alert('API key chưa được cấu hình. Vui lòng tạo file .env với REACT_APP_GEMINI_API_KEY=<your-key>');
+      return;
+    }
+    
+    setIsGenerating(true);
+    try {
+      const result = await generateWithAI(contentRef.current.value, title);
+      finalRef.current.value = result;
+    } catch (error) {
+      alert(`Lỗi AI gen: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+  
   function handleAssign() {
     setIsAssigned(true);
     setOpen(false);
@@ -235,6 +255,13 @@ ${footer}`;
             <Button onClick={handleOpen}>Assign</Button>
             <Button onClick={handleReplicate} color={'secondary'}>Replicate</Button>
             <Button onClick={handleAppend} color={'success'}>Append</Button>
+            <Button 
+              onClick={handleAiGen} 
+              color="info" 
+              disabled={isGenerating}
+            >
+              {isGenerating ? 'Generating...' : 'AI gen'}
+            </Button>
             <Modal
                 open={open}
                 onClose={handleClose}
