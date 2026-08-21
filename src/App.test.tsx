@@ -2,8 +2,14 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+jest.mock('./utils/aiGen', () => ({
+  generateWithAIStream: async function* (_rawContent: string, _title: string) {
+    yield 'A';
+  },
+}));
+
+test('renders the app heading', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const heading = screen.getByText(/Tìm Chó Mèo Lạc Đà Nẵng/i);
+  expect(heading).toBeInTheDocument();
 });

@@ -14,7 +14,7 @@ import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import { useReducer } from 'react';
-import { generateWithAI } from '../utils/aiGen';
+import { generateWithAIStream } from '../utils/aiGen';
 
 type AssignInfo = {
   name: string;
@@ -131,11 +131,16 @@ export default function Ctdv() {
       alert('API key chưa được cấu hình. Vui lòng tạo file .env với REACT_APP_GEMINI_API_KEY=<your-key>');
       return;
     }
-    
+
     setIsGenerating(true);
+    finalRef.current.value = '';
     try {
-      const result = await generateWithAI(contentRef.current.value, title);
-      finalRef.current.value = result;
+      for await (
+        const chunk of generateWithAIStream(contentRef.current.value, title)
+      ) {
+        finalRef.current.value += chunk;
+        finalRef.current.scrollTop = finalRef.current.scrollHeight;
+      }
     } catch (error) {
       alert(`Lỗi AI gen: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
