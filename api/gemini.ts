@@ -1,12 +1,13 @@
-// Chạy trên Node runtime của Vercel — `config.runtime = 'edge'` không được
-// áp dụng cho project CRA. Timeout đặt trong vercel.json.
+// Bắt buộc Edge runtime: handler này dùng Request/Response chuẩn web và
+// stream qua ReadableStream. Node runtime của Vercel không chạy được nó.
+export const config = { runtime: 'edge' };
 
 const MODEL_NAME = 'gemini-3.6-flash';
 const MAX_CONTENT_CHARS = 4000;
 const MAX_TITLE_CHARS = 200;
-// Bài post dài nhất cũng chỉ vài trăm token; chặn trên để generation
-// không kéo dài chạm timeout của function.
-const MAX_OUTPUT_TOKENS = 2048;
+// Edge Function trên gói Hobby bị cắt ở 25s. Bài post thực tế chỉ vài trăm
+// token, nên chặn ở đây để generation kết thúc trước giới hạn đó.
+const MAX_OUTPUT_TOKENS = 1024;
 
 function buildPrompt(rawContent: string, title: string): string {
   return `Bạn là người viết content Facebook, đang giúp chủ nhân viết bài đăng tìm thú cưng lạc sao cho CHÂN THẬT, XÚC ĐỘNG và DỄ ĐƯỢC CHIA SẺ, BÌNH LUẬN.
