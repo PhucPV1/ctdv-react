@@ -2,7 +2,10 @@
 // stream qua ReadableStream. Node runtime của Vercel không chạy được nó.
 export const config = { runtime: 'edge' };
 
-const MODEL_NAME = 'gemini-3.6-flash';
+// Hạn mức free tier tính riêng cho từng model. gemini-3.6-flash chỉ cho 20
+// request/ngày, không đủ dùng; bản lite có hạn mức rộng hơn nhiều và thừa
+// sức cho tác vụ sắp xếp lại thông tin người dùng đã nhập.
+const MODEL_NAME = 'gemini-flash-lite-latest';
 const MAX_CONTENT_CHARS = 4000;
 const MAX_TITLE_CHARS = 200;
 // gemini-3.6-flash là thinking model và maxOutputTokens tính gộp cả token
