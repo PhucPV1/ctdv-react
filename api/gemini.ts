@@ -5,9 +5,11 @@ export const config = { runtime: 'edge' };
 const MODEL_NAME = 'gemini-3.6-flash';
 const MAX_CONTENT_CHARS = 4000;
 const MAX_TITLE_CHARS = 200;
-// Edge Function trên gói Hobby bị cắt ở 25s. Bài post thực tế chỉ vài trăm
-// token, nên chặn ở đây để generation kết thúc trước giới hạn đó.
-const MAX_OUTPUT_TOKENS = 1024;
+// gemini-3.6-flash là thinking model và maxOutputTokens tính gộp cả token
+// suy luận nội bộ (đo được ~1000-1250) lẫn nội dung trả về. Đặt thấp thì
+// suy luận ăn hết hạn mức và bài viết bị cắt giữa chừng (finishReason
+// MAX_TOKENS). 4096 đủ chỗ cho cả hai; bài thực tế chỉ ~220 token.
+const MAX_OUTPUT_TOKENS = 4096;
 
 function buildPrompt(rawContent: string, title: string): string {
   return `Bạn là người viết content Facebook, đang giúp chủ nhân viết bài đăng tìm thú cưng lạc sao cho CHÂN THẬT, XÚC ĐỘNG và DỄ ĐƯỢC CHIA SẺ, BÌNH LUẬN.
@@ -150,6 +152,10 @@ export default async function handler(request: Request): Promise<Response> {
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: MAX_OUTPUT_TOKENS,
+          // Tắt suy luận nội bộ: tác vụ này chỉ sắp xếp lại thông tin có sẵn nên
+          // không cần, mà bật thì TTFB tăng từ ~1.5s lên hàng chục giây và dễ
+          // chạm trần 25s của Edge Function.
+          thinkingConfig: { thinkingLevel: 'low' },
         },
       }),
     });
