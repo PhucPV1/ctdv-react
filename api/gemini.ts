@@ -1,8 +1,12 @@
-export const config = { runtime: 'edge' };
+// Chạy trên Node runtime của Vercel — `config.runtime = 'edge'` không được
+// áp dụng cho project CRA. Timeout đặt trong vercel.json.
 
 const MODEL_NAME = 'gemini-3.6-flash';
 const MAX_CONTENT_CHARS = 4000;
 const MAX_TITLE_CHARS = 200;
+// Bài post dài nhất cũng chỉ vài trăm token; chặn trên để generation
+// không kéo dài chạm timeout của function.
+const MAX_OUTPUT_TOKENS = 2048;
 
 function buildPrompt(rawContent: string, title: string): string {
   return `Bạn là người viết content Facebook, đang giúp chủ nhân viết bài đăng tìm thú cưng lạc sao cho CHÂN THẬT, XÚC ĐỘNG và DỄ ĐƯỢC CHIA SẺ, BÌNH LUẬN.
@@ -142,7 +146,10 @@ export default async function handler(request: Request): Promise<Response> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: buildPrompt(safeContent, safeTitle) }] }],
-        generationConfig: { temperature: 0.7 },
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+        },
       }),
     });
   } catch (error) {
