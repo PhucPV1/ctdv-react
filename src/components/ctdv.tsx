@@ -127,11 +127,6 @@ export default function Ctdv() {
   const [isGenerating, setIsGenerating] = React.useState(false);
   
   async function handleAiGen() {
-    if (!process.env.REACT_APP_GEMINI_API_KEY) {
-      alert('API key chưa được cấu hình. Vui lòng tạo file .env với REACT_APP_GEMINI_API_KEY=<your-key>');
-      return;
-    }
-
     setIsGenerating(true);
     finalRef.current.value = '';
     try {
