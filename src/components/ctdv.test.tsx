@@ -4,7 +4,7 @@ import Ctdv from './ctdv';
 jest.mock('../utils/aiGen', () => ({
   generateWithAIStream: async function* (_rawContent: string, _title: string) {
     yield 'A';
-    yield 'AB';
+    yield 'B';
   },
 }));
 
