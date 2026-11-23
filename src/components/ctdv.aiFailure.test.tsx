@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Ctdv from './ctdv';
 
 jest.mock('../utils/aiGen', () => ({
@@ -19,8 +19,10 @@ test('AI gen failure keeps the post that was already there', async () => {
 
   fireEvent.click(screen.getByText(/AI gen/i));
 
-  await waitFor(() => expect(alertMock).toHaveBeenCalled());
-  expect(alertMock.mock.calls[0][0]).toMatch(/AI đang quá tải/);
+  expect(
+    await screen.findByText(/Lỗi AI gen: AI đang quá tải/),
+  ).toBeInTheDocument();
+  expect(alertMock).not.toHaveBeenCalled();
   expect(resultArea).toHaveValue(postBefore);
 
   alertMock.mockRestore();

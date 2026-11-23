@@ -1,103 +1,250 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  width: 100%;
-  min-height: 900px;
-  margin: 0 auto;
-  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f7cac9+0,92a8d1+100 */
-  background: #f7cac9;
-  /* Old browsers */
-  background: -moz-linear-gradient(-45deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%);
-  /* FF3.6-15 */
-  background: -webkit-linear-gradient(-45deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%);
-  /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(135deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%);
-  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  /* IE6-9 fallback on horizontal gradient */
-  letter-spacing: 1px;
-  font-family: "Roboto" !important;
-}
-h1 {
-  margin: 10px 0;
-  font-size: 600;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 1px 1px rgb(0 0 0 / 2%), 2px 2px rgb(0 0 0 / 2%), 3px 3px rgb(0 0 0 / 2%), 4px 4px rgb(0 0 0 / 2%),
-    5px 5px rgb(0 0 0 / 2%), 6px 6px rgb(0 0 0 / 2%), 7px 7px rgb(0 0 0 / 2%);
-}
-p {
-  margin: 5px 0 !important;
-  text-align: center;
-  color: #fff;
-  font-size: 14px;
-  margin-bottom: 0;
-  line-height: 30px;
-  font-weight: 400;
-}
-textarea {
-  width: 500px;
-  outline: none;
-  border: none;
-  height: 200px;
-  border-radius: 5px;
-  padding: 10px;
-}
-textarea:focus {
-  box-shadow: 0 0 10px rgba(207, 76, 247, 0.863);
-}
-.options {
-  width: 500px;
-  background-color: #fff;
-  border-radius: 5px;
-}
-.title-icon {
-  margin-top: 30px;
-  color: #fff;
-  font-size: xxx-large !important;
-}
-#copy-button {
-  border-radius: 10px;
-  cursor: pointer;
-  display: block;
-  margin: 20px auto;
-  background: linear-gradient(-45deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%);
-  padding: 1rem;
-  font-size: 1rem;
-  border: none;
-  color: white;
-  position: relative;
-}
-#content_title_type {
-  min-width: 48% !important;
-}
-#demo-simple-select {
-  border: 1px solid #f7cac9;
-}
-#Assign-Reload {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Design tokens. src/theme.ts mirrors these values for MUI components;
+   keep the two in sync. */
+:root {
+  --bg: #fbf5ec;
+  --surface: #ffffff;
+  --surface-raised: #fffdf9;
+  --border: #eadfcf;
+  --text: #3b2a20;
+  --text-muted: #7a6657;
+  --accent: #bf4a26;
+  --on-accent: #ffffff;
+  --accent-soft: #fbe3d6;
+  --radius-card: 18px;
+  --radius-control: 14px;
+  --radius-pill: 999px;
+  --font-body: Roboto, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-title: Georgia, 'Times New Roman', serif;
 }
 
-/* Tablet */
-@media (min-width: 740px) and (max-width: 1023px) {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
-/* Mobile */
-@media (max-width: 739px) {
-  .options {
-    width: 80% !important;
-  }
-  textarea {
-    width: 80%;
-  }
-  h1 {
-    width: 80%;
-    margin: auto;
-  }
-  #content_title_type {
-    min-width: 42% !important;
-  }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+/* ---- Page ---- */
+
+.ctdv-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
+  text-align: left;
+}
+
+.ctdv-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ctdv-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.ctdv-logo svg {
+  font-size: 22px;
+}
+
+.ctdv-header h1 {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.ctdv-header .MuiButton-root {
+  flex-shrink: 0;
+}
+
+.ctdv-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ctdv-label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ctdv-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ctdv-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.ctdv-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ctdv-textarea {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  overflow-y: hidden;
+}
+
+.ctdv-textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.ctdv-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---- Action bar ---- */
+
+.ctdv-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+  transform: translateX(-50%);
+}
+
+.ctdv-bar .MuiButton-root {
+  min-width: 0;
+  padding: 0 6px;
+}
+
+.ctdv-btn-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---- Assign sheet ---- */
+
+.ctdv-sheet-grab {
+  flex-shrink: 0;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 8px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+}
+
+.ctdv-sheet-title {
+  margin: 0 0 12px;
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ctdv-sheet-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ctdv-sheet-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.ctdv-sheet-row label {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ctdv-sheet-row select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 36px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background-color: var(--surface);
+  /* Chevron drawn in the text-muted colour (#7a6657). */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237a6657' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.ctdv-sheet-row select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.ctdv-sheet-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.ctdv-sheet-footer {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 8px;
+  margin-top: 4px;
+  padding: 12px 0 calc(16px + env(safe-area-inset-bottom));
+  background: var(--surface-raised);
 }

@@ -1,12 +1,13 @@
-import "./App.css"
-import Ctdv from "./components/ctdv"
+import { ThemeProvider } from '@mui/material/styles';
+import Ctdv from './components/ctdv';
+import { theme } from './theme';
 
 function App() {
   return (
-    <div className="App">
-      <Ctdv/>
-    </div>
-  )
+    <ThemeProvider theme={theme}>
+      <Ctdv />
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;

@@ -1,467 +1,347 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
+import PetsSharpIcon from '@mui/icons-material/PetsSharp';
 import './ctdv.css';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import PetsSharpIcon from '@mui/icons-material/PetsSharp';
-import TextareaAutosize from '@mui/material/TextareaAutosize';
-import Modal from '@mui/material/Modal';
-import Button from '@mui/material/Button';
-import { useReducer } from 'react';
 import { generateWithAIStream } from '../utils/aiGen';
+import ActionBar from './ActionBar';
+import AssignSheet from './AssignSheet';
+import CategoryChips, { CategoryOption } from './CategoryChips';
+import { AssignInfo, generateContent, initialAssignInfo } from './assignInfo';
 
-type AssignInfo = {
-  name: string;
-  breed: string;
-  gender: string;
-  location: string;
-  time: string;
-  info: string;
-  phone: string;
-};
-type ActionType = {
-  type:
-      | 'setName'
-      | 'setBreed'
-      | 'setGender'
-      | 'setLocation'
-      | 'setTime'
-      | 'setInfo'
-      | 'setPhone';
-  payload: string;
-};
-const initialAssignInfo: AssignInfo = {
-  gender: '',
-  breed: '',
-  info: '',
-  location: '',
-  name: '',
-  phone: '',
-  time: '',
+const optionTitle: Record<CategoryOption, string> = {
+  dog: 'TÌM CHÓ LẠC',
+  cat: 'TÌM MÈO LẠC',
+  dogFindOwner: 'CHÓ LẠC TÌM CHỦ',
+  catFindOwner: 'MÈO LẠC TÌM CHỦ',
 };
 
-type KeyInfo = { translate: string; order: number };
-const ContentKeyInfo = new Map<keyof AssignInfo, KeyInfo>([
-  ['name', { translate: 'Tên', order: 0 }],
-  ['breed', { translate: 'Giống', order: 1 }],
-  ['gender', { translate: 'Giới tính', order: 2 }],
-  ['location', { translate: 'Khu vực lạc', order: 3 }],
-  ['time', { translate: 'Thời gian lạc', order: 4 }],
-  ['info', { translate: 'Đặc điểm nhận dạng', order: 5 }],
-  ['phone', { translate: 'Sdt liên hệ', order: 6 }],
-]);
-const optionTitle = new Map();
-optionTitle.set('dog', 'TÌM CHÓ LẠC');
-optionTitle.set('cat', 'TÌM MÈO LẠC');
-optionTitle.set('dogFindOwner', 'CHÓ LẠC TÌM CHỦ');
-optionTitle.set('catFindOwner', 'MÈO LẠC TÌM CHỦ');
+type RowRange = { min: number; max: number };
+const CONTENT_ROWS: RowRange = { min: 6, max: 12 };
+const POST_ROWS: RowRange = { min: 10, max: 20 };
 
-function reducer(state: AssignInfo, action: ActionType): AssignInfo {
-  switch (action.type) {
-    case 'setName':
-      return { ...state, name: action.payload };
-    case 'setBreed':
-      return { ...state, breed: action.payload };
-    case 'setGender':
-      return { ...state, gender: action.payload };
-    case 'setLocation':
-      return { ...state, location: action.payload };
-    case 'setTime':
-      return { ...state, time: action.payload };
-    case 'setInfo':
-      return { ...state, info: action.payload };
-    case 'setPhone':
-      return { ...state, phone: action.payload };
-    default:
-      return state;
-  }
+// Sizes a textarea to its text, between rows.min and rows.max lines; beyond
+// rows.max it scrolls inside. Both textareas are written through refs, so
+// this is called by hand after every write.
+function fitRows(textarea: HTMLTextAreaElement, rows: RowRange) {
+  const style = window.getComputedStyle(textarea);
+  const lineHeight = parseFloat(style.lineHeight) || 24;
+  const paddingY =
+    (parseFloat(style.paddingTop) || 0) +
+    (parseFloat(style.paddingBottom) || 0);
+  const borderY =
+    (parseFloat(style.borderTopWidth) || 0) +
+    (parseFloat(style.borderBottomWidth) || 0);
+
+  // Collapsing the textarea to measure it can shorten the page and make the
+  // browser clamp the scroll position, so put the position back afterwards.
+  const pageScroll = window.scrollY;
+  textarea.style.height = 'auto';
+  const textHeight = textarea.scrollHeight - paddingY;
+  const minHeight = rows.min * lineHeight;
+  const maxHeight = rows.max * lineHeight;
+  const height = Math.min(Math.max(textHeight, minHeight), maxHeight);
+  textarea.style.height = `${height + paddingY + borderY}px`;
+  textarea.style.overflowY = textHeight > maxHeight ? 'auto' : 'hidden';
+  if (window.scrollY !== pageScroll) window.scrollTo(0, pageScroll);
 }
 
-const style = {
-  position: 'absolute' as 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '80%',
-  bgcolor: 'background.paper',
-  border: '2px solid rgba(207, 76, 247, 0.863);',
-  boxShadow: 24,
-  p: 4,
-  bg: '-moz-linear-gradient(-45deg, rgba(247, 202, 201, 1) 0%, rgba(146, 168, 209, 1) 100%)',
-};
-
-const generateContent = (assignInfo: AssignInfo) => {
-  const keys = Object.keys(assignInfo).sort((a, b) => {
-    return (
-        ContentKeyInfo.get(a as keyof AssignInfo)?.order! -
-        ContentKeyInfo.get(b as keyof AssignInfo)?.order!
-    );
-  }) as Array<keyof AssignInfo>;
-  return keys.reduce((content, currentKey) => {
-    if (assignInfo[currentKey] !== '') {
-      const breakDown = content === '' ? '' : '\n';
-      return `${content}${breakDown}${ContentKeyInfo.get(currentKey)
-          ?.translate}: ${assignInfo[currentKey]}`;
-    }
-    return content;
-  }, '');
+type Severity = 'success' | 'error';
+type Notice = {
+  open: boolean;
+  message: string;
+  severity: Severity;
+  key: number;
 };
 
 export default function Ctdv() {
-  const [option, setOption] = React.useState('dog');
-  const [title, setTitle] = React.useState('TÌM CHÓ LẠC');
+  const [option, setOption] = React.useState<CategoryOption>('dog');
+  const [title, setTitle] = React.useState(optionTitle.dog);
   const [isContentChanged, setIsContentChanged] = React.useState(false);
-  const contentRef: any = React.useRef();
-  const finalRef: any = React.useRef();
+  const contentRef = React.useRef<HTMLTextAreaElement>(null);
+  const finalRef = React.useRef<HTMLTextAreaElement>(null);
 
-  const [assignInfo, dispatch] = useReducer(reducer, initialAssignInfo);
-
-  const [assignedContent, setAssignedContent] = React.useState(['a', 'b', 'c']);
+  const [assignInfo, setAssignInfo] =
+    React.useState<AssignInfo>(initialAssignInfo);
+  const [assignedContent, setAssignedContent] = React.useState<string[]>([]);
   const [isAssigned, setIsAssigned] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
-  
+  const [open, setOpen] = React.useState(false);
+  const [notice, setNotice] = React.useState<Notice>({
+    open: false,
+    message: '',
+    severity: 'success',
+    key: 0,
+  });
+
+  const fitTextareas = React.useCallback(() => {
+    if (contentRef.current) fitRows(contentRef.current, CONTENT_ROWS);
+    if (finalRef.current) fitRows(finalRef.current, POST_ROWS);
+  }, []);
+
+  function notify(message: string, severity: Severity) {
+    setNotice((previous) => ({
+      open: true,
+      message,
+      severity,
+      key: previous.key + 1,
+    }));
+  }
+
+  function handleNoticeClose(_event: unknown, reason?: string) {
+    if (reason === 'clickaway') return;
+    setNotice((previous) => ({ ...previous, open: false }));
+  }
+
   async function handleAiGen() {
+    const post = finalRef.current!;
     setIsGenerating(true);
-    const previousPost = finalRef.current.value;
-    finalRef.current.value = '';
+    const previousPost = post.value;
+    post.value = '';
     try {
-      for await (
-        const chunk of generateWithAIStream(contentRef.current.value, title)
-      ) {
-        finalRef.current.value += chunk;
-        finalRef.current.scrollTop = finalRef.current.scrollHeight;
+      for await (const chunk of generateWithAIStream(
+        contentRef.current!.value,
+        title,
+      )) {
+        post.value += chunk;
+        fitRows(post, POST_ROWS);
+        post.scrollTop = post.scrollHeight;
       }
     } catch (error) {
       // AI thất bại thì trả lại bài cũ, không để người dùng mất trắng.
-      finalRef.current.value = previousPost;
-      alert(`Lỗi AI gen: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      post.value = previousPost;
+      fitRows(post, POST_ROWS);
+      notify(
+        `Lỗi AI gen: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+        'error',
+      );
     } finally {
       setIsGenerating(false);
     }
   }
-  
-  function handleAssign() {
+
+  function handleChangeOption(nextOption: CategoryOption) {
+    setOption(nextOption);
+    setTitle(optionTitle[nextOption]);
+  }
+
+  function handleAssign(next: AssignInfo) {
+    setAssignInfo(next);
     setIsAssigned(true);
-    setOpen(false);
-  }
-  function handleChangeOption(event: SelectChangeEvent) {
-    setOption(event.target.value);
-    setTitle(optionTitle.get(event.target.value));
-  }
-  const [open, setOpen] = React.useState(false);
-  function handleOpen() {
-    setOpen(true);
-  }
-  function handleClose() {
     setOpen(false);
   }
 
   React.useEffect(() => {
+    const content = contentRef.current!;
+    const post = finalRef.current!;
     if (isAssigned) {
-      contentRef.current.value = generateContent(assignInfo);
+      content.value = generateContent(assignInfo);
     }
     const footer =
-        title === 'TÌM CHÓ LẠC' || title === 'TÌM MÈO LẠC'
-            ? 'Nhờ mọi người dành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ.'
-            : 'Nhờ mọi người dành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn.';
+      title === 'TÌM CHÓ LẠC' || title === 'TÌM MÈO LẠC'
+        ? 'Nhờ mọi người dành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà. Mình cảm ơn và xin chân thành hậu tạ cho ai giúp tìm được bé ạ.'
+        : 'Nhờ mọi người dành chút thời gian chia sẻ bài viết để bé có thể sớm về nhà ạ. Mình xin cảm ơn.';
+    const processed = content.value
+      .replaceAll(' :', ':')
+      .replaceAll(' ,', ',')
+      .replaceAll('( ', '(')
+      .replaceAll(' )', ')')
+      .replaceAll(' / mất:', ':')
+      .replaceAll('Giống chó/mèo', 'Giống')
+      .split('\n')
+      .map((line: string) => line.charAt(0).toUpperCase() + line.slice(1))
+      .join('\n');
 
-    finalRef.current.value = `${title}
-    
-${contentRef.current.value
-        .replaceAll(' :', ':')
-        .replaceAll(' ,', ',')
-        .replaceAll('( ','(')
-        .replaceAll(' )',')')
-        .replaceAll(' / mất:', ':')
-        .replaceAll('Giống chó/mèo', 'Giống').split('\n').map((line:string)=>{return line.charAt(0).toUpperCase()+line.slice(1)}).join('\n')}
-    
-${footer}`;
-  }, [title, isContentChanged, isAssigned, assignInfo]);
+    // The two separator lines hold exactly four spaces, as they always have.
+    post.value = `${title}\n    \n${processed}\n    \n${footer}`;
+    fitTextareas();
+  }, [title, isContentChanged, isAssigned, assignInfo, fitTextareas]);
 
-  const handleContent = () => {
-    setAssignedContent(contentRef.current.value.split(/\n/));
-    setIsContentChanged(!isContentChanged);
-  };
-  const handleCopy = () => {
-    navigator.clipboard
-        .writeText(finalRef.current.value)
-        .then(() => alert('copy success'))
-        .catch(() => alert('copy fail'));
-  };
-  const handleReplicate = () => {
-    navigator.clipboard
-        .readText()
-        .then((value) => {
-          contentRef.current.value= value;
-          setAssignedContent(contentRef.current.value.split(/\n/));
-          setIsContentChanged(!isContentChanged);
-        })
-        .catch(() => alert('Replicate fail'));
-  };
-  const handleAppend = () => {
-    navigator.clipboard
-        .readText()
-        .then((value) => {
-          const currentValue = contentRef.current.value;
-          contentRef.current.value = currentValue ? `${currentValue}\n${value}` : value;
-          setAssignedContent(contentRef.current.value.split(/\n/));
-          setIsContentChanged(!isContentChanged);
-        })
-        .catch(() => alert('Append fail'));
-  };
-  const handleReload = () => {
+  // Line wrapping changes with the viewport width and once the web font loads.
+  React.useEffect(() => {
+    window.addEventListener('resize', fitTextareas);
+    document.fonts?.ready.then(fitTextareas).catch(() => {});
+    return () => window.removeEventListener('resize', fitTextareas);
+  }, [fitTextareas]);
+
+  function syncContent() {
+    setAssignedContent(contentRef.current!.value.split(/\n/));
+    setIsContentChanged((previous) => !previous);
+  }
+
+  function handleCopy() {
+    const clipboard = navigator.clipboard;
+    if (!clipboard) {
+      notify('copy fail', 'error');
+      return;
+    }
+    clipboard
+      .writeText(finalRef.current!.value)
+      .then(() => notify('copy success', 'success'))
+      .catch(() => notify('copy fail', 'error'));
+  }
+
+  function handleReplicate() {
+    const clipboard = navigator.clipboard;
+    if (!clipboard) {
+      notify('Replicate fail', 'error');
+      return;
+    }
+    clipboard
+      .readText()
+      .then((value) => {
+        contentRef.current!.value = value;
+        syncContent();
+      })
+      .catch(() => notify('Replicate fail', 'error'));
+  }
+
+  function handleAppend() {
+    const clipboard = navigator.clipboard;
+    if (!clipboard) {
+      notify('Append fail', 'error');
+      return;
+    }
+    clipboard
+      .readText()
+      .then((value) => {
+        const content = contentRef.current!;
+        const currentValue = content.value;
+        content.value = currentValue ? `${currentValue}\n${value}` : value;
+        syncContent();
+      })
+      .catch(() => notify('Append fail', 'error'));
+  }
+
+  function handleReload() {
     window.location.reload();
-  };
+  }
+
+  const lines = React.useMemo(
+    () =>
+      Array.from(
+        new Set(
+          assignedContent
+            .map((line) => line.trim())
+            .filter((line) => line !== ''),
+        ),
+      ),
+    [assignedContent],
+  );
 
   return (
-      <>
-        <PetsSharpIcon className="title-icon" />
-        <h1>Tìm Chó Mèo Lạc Đà Nẵng</h1>
-        <p>Thể loại</p>
-        <Box sx={{ minWidth: 120 }}>
-          <FormControl color="secondary" className="options">
-            <InputLabel
-                id="demo-simple-select-label"
-                className="options"
-            ></InputLabel>
-            <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={option}
-                // label="Thể loại"
-                onChange={handleChangeOption}
-            >
-              <MenuItem value={'dog'}>Tìm Chó Lạc</MenuItem>
-              <MenuItem value={'cat'}>Tìm Mèo Lạc</MenuItem>
-              <MenuItem value={'dogFindOwner'}>Chó lạc tìm chủ</MenuItem>
-              <MenuItem value={'catFindOwner'}>Mèo lạc tìm chủ</MenuItem>
-            </Select>
-          </FormControl>
-          <br></br>
-          <p>Nội dung</p>
-          <TextareaAutosize
-              aria-label="minimum height"
-              minRows={10}
-              onChange={handleContent}
-              ref={contentRef}
-              //   placeholder="Minimum 3 rows"
-              //   style={{ width: 200 }}
-          />
-          <br></br>
-          <div>
-            <Button onClick={handleOpen}>Assign</Button>
-            <Button onClick={handleReplicate} color={'secondary'}>Replicate</Button>
-            <Button onClick={handleAppend} color={'success'}>Append</Button>
-            <Button 
-              onClick={handleAiGen} 
-              color="info" 
-              disabled={isGenerating}
-            >
-              {isGenerating ? 'Generating...' : 'AI gen'}
-            </Button>
-            <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-              <Box sx={style}>
-                <FormControl
-                    id="content_title_type"
-                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-                >
-                  <InputLabel id="demo-simple-select-label">Tên</InputLabel>
-                  <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={assignInfo.name}
-                      label="name"
-                      onChange={(e) =>
-                          dispatch({ type: 'setName', payload: e.target.value })
-                      }
-                  >
-                    {assignedContent.map((contentItem) => (
-                        <MenuItem key={contentItem} value={contentItem}>
-                          {contentItem}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                    id="content_title_type"
-                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-                >
-                  <InputLabel id="demo-simple-select-label">Giống</InputLabel>
-                  <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={assignInfo.breed}
-                      label="breed"
-                      onChange={(e) =>
-                          dispatch({ type: 'setBreed', payload: e.target.value })
-                      }
-                  >
-                    {assignedContent.map((contentItem) => (
-                        <MenuItem key={contentItem} value={contentItem}>
-                          {contentItem}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                    id="content_title_type"
-                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-                >
-                  <InputLabel id="demo-simple-select-label">Giới tính</InputLabel>
-                  <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={assignInfo.gender}
-                      label="gender"
-                      onChange={(e) =>
-                          dispatch({ type: 'setGender', payload: e.target.value })
-                      }
-                  >
-                    {assignedContent.map((contentItem) => (
-                        <MenuItem key={contentItem} value={contentItem}>
-                          {contentItem}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                    id="content_title_type"
-                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-                >
-                  <InputLabel id="demo-simple-select-label">
-                    Khu vực lạc
-                  </InputLabel>
-                  <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={assignInfo.location}
-                      label="location"
-                      onChange={(e) =>
-                          dispatch({ type: 'setLocation', payload: e.target.value })
-                      }
-                  >
-                    {assignedContent.map((contentItem) => (
-                        <MenuItem key={contentItem} value={contentItem}>
-                          {contentItem}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                    id="content_title_type"
-                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-                >
-                  <InputLabel id="demo-simple-select-label">
-                    Thời gian lạc
-                  </InputLabel>
-                  <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={assignInfo.time}
-                      label="time"
-                      onChange={(e) =>
-                          dispatch({ type: 'setTime', payload: e.target.value })
-                      }
-                  >
-                    {assignedContent.map((contentItem) => (
-                        <MenuItem key={contentItem} value={contentItem}>
-                          {contentItem}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                    id="content_title_type"
-                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-                >
-                  <InputLabel id="demo-simple-select-label">Đặc điểm</InputLabel>
-                  <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={assignInfo.info}
-                      label="info"
-                      onChange={(e) =>
-                          dispatch({ type: 'setInfo', payload: e.target.value })
-                      }
-                  >
-                    {assignedContent.map((contentItem) => (
-                        <MenuItem key={contentItem} value={contentItem}>
-                          {contentItem}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                    id="content_title_type"
-                    sx={{ m: 1, minWidth: 120, inlineSize: 40 }}
-                >
-                  <InputLabel id="demo-simple-select-label">Sdt</InputLabel>
-                  <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={assignInfo.phone}
-                      label="phone"
-                      onChange={(e) =>
-                          dispatch({ type: 'setPhone', payload: e.target.value })
-                      }
-                  >
-                    {assignedContent.map((contentItem) => (
-                        <MenuItem key={contentItem} value={contentItem}>
-                          {contentItem}
-                        </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <br />
-                <div id="Assign-Reload">
-                  <Button
-                      variant="contained"
-                      sx={{ margin: '0 auto' }}
-                      onClick={handleAssign}
-                  >
-                    Assign
-                  </Button>
-                  <Button
-                      variant="contained"
-                      color="error"
-                      sx={{ margin: '0 auto' }}
-                      onClick={handleReload}
-                  >
-                    Reload
-                  </Button>
-                </div>
-              </Box>
-            </Modal>
-          </div>
+    <>
+      <main className="ctdv-page">
+        <header className="ctdv-header">
+          <span className="ctdv-logo" aria-hidden="true">
+            <PetsSharpIcon />
+          </span>
+          <h1>Tìm Chó Mèo Lạc Đà Nẵng</h1>
+          <Button
+            variant="outlined"
+            size="small"
+            color="secondary"
+            onClick={handleReload}
+          >
+            Reload
+          </Button>
+        </header>
 
-          <p>Bài Viết</p>
-          <TextareaAutosize
-              aria-label="minimum height"
-              minRows={12}
-              ref={finalRef}
-              //   placeholder="Minimum 3 rows"
-              //   style={{ width: 200 }}
+        <section className="ctdv-section">
+          <h2 className="ctdv-label">Thể loại</h2>
+          <CategoryChips
+            value={option}
+            onChange={handleChangeOption}
+            disabled={isGenerating}
           />
-        </Box>
-        <button
-            className="button"
-            id="copy-button"
-            data-clipboard-target="#final"
-            onClick={handleCopy}
-        >
-          Copy
-        </button>
-      </>
+        </section>
+
+        <section className="ctdv-section">
+          <div className="ctdv-label-row">
+            <h2 className="ctdv-label">Nội dung</h2>
+            <div className="ctdv-pills">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleAppend}
+                disabled={isGenerating}
+              >
+                Append
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setOpen(true)}
+                disabled={isGenerating}
+              >
+                Assign
+              </Button>
+            </div>
+          </div>
+          <textarea
+            className="ctdv-textarea"
+            aria-label="Nội dung"
+            placeholder="Dán thông tin vào đây, mỗi ý một dòng"
+            rows={CONTENT_ROWS.min}
+            onChange={syncContent}
+            readOnly={isGenerating}
+            ref={contentRef}
+          />
+        </section>
+
+        <section className="ctdv-section">
+          <h2 className="ctdv-label">Bài Viết</h2>
+          <textarea
+            className="ctdv-textarea"
+            aria-label="Bài Viết"
+            rows={POST_ROWS.min}
+            readOnly={isGenerating}
+            ref={finalRef}
+          />
+        </section>
+      </main>
+
+      <ActionBar
+        isGenerating={isGenerating}
+        onReplicate={handleReplicate}
+        onAiGen={handleAiGen}
+        onCopy={handleCopy}
+      />
+
+      <AssignSheet
+        open={open}
+        lines={lines}
+        value={assignInfo}
+        onAssign={handleAssign}
+        onCancel={() => setOpen(false)}
+      />
+
+      <Snackbar
+        key={notice.key}
+        open={notice.open}
+        autoHideDuration={notice.severity === 'error' ? 6000 : 3000}
+        onClose={handleNoticeClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{
+          bottom: 'calc(84px + env(safe-area-inset-bottom))',
+          left: '50%',
+          right: 'auto',
+          transform: 'translateX(-50%)',
+          width: 'calc(100% - 32px)',
+          maxWidth: 448,
+        }}
+      >
+        <Alert severity={notice.severity} variant="filled" icon={false}>
+          {notice.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 }
