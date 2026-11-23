@@ -11,7 +11,7 @@ if (typeof globalThis.TextEncoder === 'undefined') {
   (globalThis as any).TextEncoder = NodeTextEncoder;
 }
 
-import { generateWithAIStream } from './aiGen';
+import { generateWithAIStream, RESET_MARKER } from './aiGen';
 
 /** Response giả, chỉ dựng đúng phần bề mặt mà aiGen.ts dùng tới. */
 function fakeResponse(options: {
@@ -47,12 +47,18 @@ function fakeResponse(options: {
   };
 }
 
-async function collect(generator: AsyncGenerator<string>): Promise<string> {
-  const chunks: string[] = [];
-  for await (const chunk of generator) {
-    chunks.push(chunk);
+/** Generator yield toàn bộ bài viết tính tới lúc đó; trả về mọi lần yield. */
+async function snapshots(generator: AsyncGenerator<string>): Promise<string[]> {
+  const seen: string[] = [];
+  for await (const text of generator) {
+    seen.push(text);
   }
-  return chunks.join('');
+  return seen;
+}
+
+async function collect(generator: AsyncGenerator<string>): Promise<string> {
+  const seen = await snapshots(generator);
+  return seen[seen.length - 1] ?? '';
 }
 
 describe('generateWithAIStream', () => {
@@ -63,14 +69,50 @@ describe('generateWithAIStream', () => {
     jest.restoreAllMocks();
   });
 
-  it('yields streamed chunks concatenated in order', async () => {
+  it('yields the accumulated text after every chunk', async () => {
     globalThis.fetch = jest
       .fn()
       .mockResolvedValue(fakeResponse({ chunks: ['Hello ', 'world'] })) as any;
 
     await expect(
+      snapshots(generateWithAIStream('raw input', 'TITLE')),
+    ).resolves.toEqual(['Hello ', 'Hello world']);
+  });
+
+  it('drops everything before a reset marker', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(
+      fakeResponse({
+        chunks: ['Bài bị cụt', RESET_MARKER, 'Bài ', 'trọn vẹn'],
+      }),
+    ) as any;
+
+    await expect(
+      snapshots(generateWithAIStream('raw input', 'TITLE')),
+    ).resolves.toEqual(['Bài bị cụt', '', 'Bài ', 'Bài trọn vẹn']);
+  });
+
+  it('handles a reset marker in the same chunk as the new text', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue(
+        fakeResponse({ chunks: ['cũ', `thêm${RESET_MARKER}mới`] }),
+      ) as any;
+
+    await expect(
       collect(generateWithAIStream('raw input', 'TITLE')),
-    ).resolves.toBe('Hello world');
+    ).resolves.toBe('mới');
+  });
+
+  it('fails when the stream ends with nothing left after a reset', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue(
+        fakeResponse({ chunks: ['Bài bị cụt', RESET_MARKER] }),
+      ) as any;
+
+    await expect(
+      collect(generateWithAIStream('raw input', 'TITLE')),
+    ).rejects.toThrow(/AI đang quá tải/);
   });
 
   it('posts rawContent and title to the proxy endpoint', async () => {

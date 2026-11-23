@@ -128,15 +128,18 @@ export default function Ctdv() {
   
   async function handleAiGen() {
     setIsGenerating(true);
+    const previousPost = finalRef.current.value;
     finalRef.current.value = '';
     try {
       for await (
-        const chunk of generateWithAIStream(contentRef.current.value, title)
+        const text of generateWithAIStream(contentRef.current.value, title)
       ) {
-        finalRef.current.value += chunk;
+        finalRef.current.value = text;
         finalRef.current.scrollTop = finalRef.current.scrollHeight;
       }
     } catch (error) {
+      // AI thất bại thì trả lại bài cũ, không để người dùng mất trắng.
+      finalRef.current.value = previousPost;
       alert(`Lỗi AI gen: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
