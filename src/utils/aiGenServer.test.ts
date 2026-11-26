@@ -495,6 +495,47 @@ describe('cleanPost', () => {
     expect(cleanPost(post)).toBe(post);
   });
 
+  it('drops a field whose value only says there is no information', () => {
+    const post = [
+      'TÌM CHÓ LẠC',
+      '',
+      'Tên: Milu',
+      'Giống: (không có)',
+      '- Giới tính: Không rõ',
+      '• Khu vực lạc: Hải Châu',
+      '🕒 Thời gian lạc: (Chưa có thông tin)',
+      '**Sdt liên hệ:** [điền vào đây]',
+      'Đặc điểm nhận dạng: N/A.',
+    ].join('\n');
+
+    expect(cleanPost(post)).toBe(
+      'TÌM CHÓ LẠC\n\nTên: Milu\n• Khu vực lạc: Hải Châu',
+    );
+  });
+
+  it('keeps a field that merely mentions something is missing', () => {
+    const post = [
+      'Đặc điểm nhận dạng: không có vòng cổ',
+      'Thời gian lạc: 10:30 tối qua (không rõ chính xác)',
+      'Tên: Na',
+      'Bé không có ở nhà từ hôm qua.',
+    ].join('\n');
+
+    expect(cleanPost(post)).toBe(post);
+  });
+
+  it('does not leave a gap where a whole block of fields was dropped', () => {
+    expect(
+      cleanPost('Mở bài\n\nSdt liên hệ: (không có)\n\nCảm ơn mọi người'),
+    ).toBe('Mở bài\n\nCảm ơn mọi người');
+  });
+
+  it('drops an empty field written with decomposed Vietnamese accents', () => {
+    expect(
+      cleanPost(`Tên: Milu\nGiống: ${'(không có)'.normalize('NFD')}`),
+    ).toBe('Tên: Milu');
+  });
+
   it('is applied to what generatePost returns', async () => {
     const { fetchImpl } = fakeFetch({
       '/a': [whole('**TÌM CHÓ LẠC**\n\n**Tên:** Milu\n')],
@@ -524,7 +565,10 @@ describe('buildPrompt', () => {
   });
 
   it('tells the model to drop fields it has no information for', () => {
-    expect(buildPrompt('x', 'TÌM CHÓ LẠC')).toMatch(/BỎ HẲN cả dòng đó/);
+    const prompt = buildPrompt('x', 'TÌM CHÓ LẠC');
+
+    expect(prompt).toMatch(/BỎ HẲN cả dòng đó/);
+    expect(prompt).toContain('"(không có)"');
   });
 
   it('asks for plain text without Markdown', () => {

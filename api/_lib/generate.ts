@@ -124,7 +124,7 @@ ${rawContent.trim() || '(Chưa có thông tin nào)'}
 YÊU CẦU:
 1. Bắt đầu bằng đúng TIÊU ĐỀ BÀI ĐĂNG ở trên.
 2. Ngay sau tiêu đề, viết 1-2 câu MỞ BÀI chân thành, gợi đồng cảm (tâm trạng chủ, sự khẩn cấp vừa phải). CHỈ dùng cảm xúc từ thông tin thật - KHÔNG thổi phồng, KHÔNG giật gân.
-3. Trích xuất thông tin và trình bày khối có cấu trúc: Tên → Giống → Giới tính → Khu vực lạc → Thời gian lạc → Đặc điểm nhận dạng → Sdt liên hệ. CHỈ hiển thị field có thông tin. Field nào nội dung gốc không có (ví dụ không có số điện thoại) thì BỎ HẲN cả dòng đó: KHÔNG để trống, KHÔNG ghi chú thay thế, KHÔNG viết kiểu "(vui lòng nhắn tin)" hay "[điền vào đây]".
+3. Trích xuất thông tin và trình bày khối có cấu trúc: Tên → Giống → Giới tính → Khu vực lạc → Thời gian lạc → Đặc điểm nhận dạng → Sdt liên hệ. CHỈ hiển thị field có thông tin. Field nào nội dung gốc không có (ví dụ không có số điện thoại) thì BỎ HẲN cả dòng đó: KHÔNG để trống, KHÔNG ghi chú thay thế, KHÔNG viết kiểu "(không có)", "Không rõ", "(vui lòng nhắn tin)" hay "[điền vào đây]".
 4. KHÔNG bịa thêm thông tin không có trong nội dung gốc.
 5. Kết bài: cảm ơn, kêu gọi CHIA SẺ bài viết để bé sớm về nhà, và mời người từng thấy bé / có thông tin nhắn tin cho chủ (tạo động lực bình luận). Văn phong tự nhiên, có thể thêm emoji.
 6. Cuối cùng thêm dòng HASHTAG địa phương: #ĐàNẵng #ChóLạc (đổi #MèoLạc nếu là mèo) #ThúCưngLạc #ĐàNẵngThúCưng.
@@ -133,10 +133,34 @@ YÊU CẦU:
 CHỈ TRẢ VỀ NỘI DUNG BÀI ĐĂNG, KHÔNG GIẢI THÍCH.`;
 }
 
+// Giá trị mà model hay điền vào field nó không có thông tin, ví dụ
+// "Sdt liên hệ: (không có)". Chỉ khớp khi đó là TOÀN BỘ giá trị của field, nên
+// "Đặc điểm: không có vòng cổ" vẫn được giữ.
+const EMPTY_FIELD_VALUE =
+  /^(?:(?:không|chưa)(?: được)? (?:có|rõ|biết|xác định|cung cấp|đề cập|nêu|ghi)|n\/a|để trống|điền vào đây)(?: thông tin| dữ liệu)?$/;
+
+/** Dòng kiểu "Nhãn: (không có)", tức field không mang thông tin nào. */
+function isEmptyField(line: string): boolean {
+  const colon = line.indexOf(':');
+  if (colon === -1) return false;
+  const value = line
+    .slice(colon + 1)
+    .normalize('NFC')
+    .toLowerCase()
+    // Bỏ ngoặc, nháy và dấu câu bao quanh: "(Không có.)" -> "không có".
+    .replace(/[()[\]{}<>"'“”.…!_–—-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return EMPTY_FIELD_VALUE.test(value);
+}
+
 /**
- * Facebook không hiển thị Markdown, nên dấu ** hay # đầu dòng sẽ hiện nguyên
- * văn trong bài đăng. Prompt đã dặn không dùng; hàm này là lớp chặn cuối vì
- * model vẫn có lúc quên (đo thực tế: cả Gemini lẫn gpt-oss đều từng in đậm).
+ * Lớp chặn cuối cho những thứ prompt đã dặn nhưng model vẫn có lúc quên:
+ *
+ * - Facebook không hiển thị Markdown, nên dấu ** hay # đầu dòng sẽ hiện nguyên
+ *   văn trong bài đăng (đo thực tế: cả Gemini lẫn gpt-oss đều từng in đậm).
+ * - Field không có thông tin phải bị bỏ cả dòng, nhưng model vẫn hay viết
+ *   "(không có)" vào đó.
  */
 export function cleanPost(text: string): string {
   return (
@@ -146,6 +170,11 @@ export function cleanPost(text: string): string {
       .replace(/\*\*/g, '')
       // Tiêu đề Markdown có khoảng trắng sau dấu #; hashtag thì không.
       .replace(/^#{1,6}[ \t]+/gm, '')
+      .split('\n')
+      .filter((line) => !isEmptyField(line))
+      .join('\n')
+      // Bỏ dòng có thể để lại hai dòng trống liền nhau.
+      .replace(/\n{3,}/g, '\n\n')
       .trim()
   );
 }
